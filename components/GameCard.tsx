@@ -309,7 +309,7 @@ export default function GameCard({ game, played, onClick }: Props) {
         </div>
 
         {/* Year · Console icon */}
-        <div style={{ fontSize: "14px", color: "#383870", marginBottom: "5px", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+        <div style={{ fontSize: "14px", color: "#7070b8", marginBottom: "5px", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
           {game.year}&nbsp;·&nbsp;<ConsoleIcon platform={game.platform} size={18} />
         </div>
 
