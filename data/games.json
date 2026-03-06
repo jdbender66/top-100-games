@@ -1,0 +1,1522 @@
+[
+  {
+    "rank": 1,
+    "id": "zelda-ocarina-of-time",
+    "title": "The Legend of Zelda: Ocarina of Time",
+    "developer": "Nintendo EAD",
+    "publisher": "Nintendo",
+    "platform": "Nintendo 64",
+    "year": 1998,
+    "metacriticScore": 99,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "The Legend of Zelda: Ocarina of Time"
+  },
+  {
+    "rank": 2,
+    "id": "soulcalibur",
+    "title": "SoulCalibur",
+    "wikiTitle": "Soulcalibur",
+    "developer": "Project Soul",
+    "publisher": "Namco",
+    "platform": "Dreamcast",
+    "year": 1999,
+    "metacriticScore": 98,
+    "genres": [
+      "Fighting"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/soulcaliber.jpg"
+  },
+  {
+    "rank": 3,
+    "id": "grand-theft-auto-iv",
+    "title": "Grand Theft Auto IV",
+    "developer": "Rockstar North",
+    "publisher": "Rockstar Games",
+    "platform": "Xbox 360",
+    "year": 2008,
+    "metacriticScore": 98,
+    "genres": [
+      "Action",
+      "Open World"
+    ],
+    "steamAppId": 12210,
+    "coverUrl": "",
+    "wikiTitle": "Grand Theft Auto IV"
+  },
+  {
+    "rank": 4,
+    "id": "super-mario-galaxy",
+    "title": "Super Mario Galaxy",
+    "developer": "Nintendo EAD Tokyo",
+    "publisher": "Nintendo",
+    "platform": "Wii",
+    "year": 2007,
+    "metacriticScore": 97,
+    "genres": [
+      "Platformer"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 5,
+    "id": "super-mario-galaxy-2",
+    "title": "Super Mario Galaxy 2",
+    "developer": "Nintendo EAD Tokyo",
+    "publisher": "Nintendo",
+    "platform": "Wii",
+    "year": 2010,
+    "metacriticScore": 97,
+    "genres": [
+      "Platformer"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 6,
+    "id": "zelda-breath-of-the-wild",
+    "title": "The Legend of Zelda: Breath of the Wild",
+    "developer": "Nintendo EPD",
+    "publisher": "Nintendo",
+    "platform": "Nintendo Switch",
+    "year": 2017,
+    "metacriticScore": 97,
+    "genres": [
+      "Action-Adventure",
+      "Open World"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 7,
+    "id": "tony-hawk-pro-skater-3",
+    "title": "Tony Hawk's Pro Skater 3",
+    "developer": "Neversoft",
+    "publisher": "Activision",
+    "platform": "PlayStation 2",
+    "year": 2001,
+    "metacriticScore": 97,
+    "genres": [
+      "Sports",
+      "Skateboarding"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 8,
+    "id": "perfect-dark",
+    "title": "Perfect Dark",
+    "developer": "Rare",
+    "publisher": "Nintendo",
+    "platform": "Nintendo 64",
+    "year": 2000,
+    "metacriticScore": 97,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Perfect Dark"
+  },
+  {
+    "rank": 9,
+    "id": "red-dead-redemption-2",
+    "title": "Red Dead Redemption 2",
+    "developer": "Rockstar Studios",
+    "publisher": "Rockstar Games",
+    "platform": "PlayStation 4",
+    "year": 2018,
+    "metacriticScore": 97,
+    "genres": [
+      "Action-Adventure",
+      "Open World"
+    ],
+    "steamAppId": 1174180,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/library_600x900.jpg"
+  },
+  {
+    "rank": 10,
+    "id": "grand-theft-auto-v",
+    "title": "Grand Theft Auto V",
+    "developer": "Rockstar North",
+    "publisher": "Rockstar Games",
+    "platform": "PlayStation 4",
+    "year": 2014,
+    "metacriticScore": 97,
+    "genres": [
+      "Action",
+      "Open World"
+    ],
+    "steamAppId": 271590,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/library_600x900.jpg"
+  },
+  {
+    "rank": 11,
+    "id": "metroid-prime",
+    "title": "Metroid Prime",
+    "developer": "Retro Studios",
+    "publisher": "Nintendo",
+    "platform": "GameCube",
+    "year": 2002,
+    "metacriticScore": 97,
+    "genres": [
+      "Action-Adventure",
+      "FPS"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Metroid Prime"
+  },
+  {
+    "rank": 12,
+    "id": "grand-theft-auto-iii",
+    "title": "Grand Theft Auto III",
+    "developer": "DMA Design",
+    "publisher": "Rockstar Games",
+    "platform": "PlayStation 2",
+    "year": 2001,
+    "metacriticScore": 97,
+    "genres": [
+      "Action",
+      "Open World"
+    ],
+    "steamAppId": 12100,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/12100/library_600x900.jpg"
+  },
+  {
+    "rank": 13,
+    "id": "super-mario-odyssey",
+    "title": "Super Mario Odyssey",
+    "developer": "Nintendo EPD",
+    "publisher": "Nintendo",
+    "platform": "Nintendo Switch",
+    "year": 2017,
+    "metacriticScore": 97,
+    "genres": [
+      "Platformer"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/odyssey.png",
+    "wikiTitle": "Super Mario Odyssey"
+  },
+  {
+    "rank": 14,
+    "id": "halo-combat-evolved",
+    "title": "Halo: Combat Evolved",
+    "developer": "Bungie",
+    "publisher": "Microsoft",
+    "platform": "Xbox",
+    "year": 2001,
+    "metacriticScore": 97,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Halo: Combat Evolved"
+  },
+  {
+    "rank": 15,
+    "id": "nfl-2k1",
+    "title": "NFL 2K1",
+    "developer": "Visual Concepts",
+    "publisher": "Sega",
+    "platform": "Dreamcast",
+    "year": 2000,
+    "metacriticScore": 97,
+    "genres": [
+      "Sports",
+      "Football"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "NFL 2K1"
+  },
+  {
+    "rank": 16,
+    "id": "half-life-2",
+    "title": "Half-Life 2",
+    "developer": "Valve",
+    "publisher": "Valve",
+    "platform": "PC",
+    "year": 2004,
+    "metacriticScore": 96,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": 220,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/220/library_600x900.jpg"
+  },
+  {
+    "rank": 17,
+    "id": "bioshock",
+    "title": "BioShock",
+    "developer": "Irrational Games",
+    "publisher": "2K Games",
+    "platform": "Xbox 360",
+    "year": 2007,
+    "metacriticScore": 96,
+    "genres": [
+      "FPS",
+      "Action"
+    ],
+    "steamAppId": 7670,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/7670/library_600x900.jpg"
+  },
+  {
+    "rank": 18,
+    "id": "goldeneye-007",
+    "title": "GoldenEye 007",
+    "developer": "Rare",
+    "publisher": "Nintendo",
+    "platform": "Nintendo 64",
+    "year": 1997,
+    "metacriticScore": 96,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/goldeneye.jpg",
+    "wikiTitle": "GoldenEye 007 (1997 video game)"
+  },
+  {
+    "rank": 19,
+    "id": "uncharted-2",
+    "title": "Uncharted 2: Among Thieves",
+    "developer": "Naughty Dog",
+    "publisher": "Sony",
+    "platform": "PlayStation 3",
+    "year": 2009,
+    "metacriticScore": 96,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 20,
+    "id": "resident-evil-4",
+    "title": "Resident Evil 4",
+    "developer": "Capcom",
+    "publisher": "Capcom",
+    "platform": "GameCube",
+    "year": 2005,
+    "metacriticScore": 96,
+    "genres": [
+      "Survival Horror",
+      "Action"
+    ],
+    "steamAppId": 254700,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/254700/library_600x900.jpg"
+  },
+  {
+    "rank": 21,
+    "id": "baldurs-gate-3",
+    "title": "Baldur's Gate 3",
+    "developer": "Larian Studios",
+    "publisher": "Larian Studios",
+    "platform": "PC",
+    "year": 2023,
+    "metacriticScore": 96,
+    "genres": [
+      "RPG"
+    ],
+    "steamAppId": 1086940,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg"
+  },
+  {
+    "rank": 22,
+    "id": "the-orange-box",
+    "title": "The Orange Box",
+    "developer": "Valve",
+    "publisher": "Valve",
+    "platform": "Xbox 360",
+    "year": 2007,
+    "metacriticScore": 96,
+    "genres": [
+      "FPS",
+      "Puzzle"
+    ],
+    "steamAppId": 400,
+    "coverUrl": "/orangebox.jpg"
+  },
+  {
+    "rank": 23,
+    "id": "tekken-3",
+    "title": "Tekken 3",
+    "developer": "Namco",
+    "publisher": "Namco",
+    "platform": "PlayStation",
+    "year": 1998,
+    "metacriticScore": 96,
+    "genres": [
+      "Fighting"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/tekken3.jpg",
+    "wikiTitle": "Tekken 3"
+  },
+  {
+    "rank": 24,
+    "id": "mass-effect-2",
+    "title": "Mass Effect 2",
+    "developer": "BioWare",
+    "publisher": "Electronic Arts",
+    "platform": "Xbox 360",
+    "year": 2010,
+    "metacriticScore": 96,
+    "genres": [
+      "RPG",
+      "Action"
+    ],
+    "steamAppId": 24980,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/24980/library_600x900.jpg"
+  },
+  {
+    "rank": 25,
+    "id": "house-in-fata-morgana",
+    "title": "The House in Fata Morgana",
+    "developer": "Novectacle",
+    "publisher": "Limited Run Games",
+    "platform": "Nintendo Switch",
+    "year": 2021,
+    "metacriticScore": 96,
+    "genres": [
+      "Visual Novel",
+      "Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 26,
+    "id": "elden-ring",
+    "title": "Elden Ring",
+    "developer": "FromSoftware",
+    "publisher": "Bandai Namco",
+    "platform": "PlayStation 5",
+    "year": 2022,
+    "metacriticScore": 96,
+    "genres": [
+      "Action RPG"
+    ],
+    "steamAppId": 1245620,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg"
+  },
+  {
+    "rank": 27,
+    "id": "skyrim",
+    "title": "The Elder Scrolls V: Skyrim",
+    "developer": "Bethesda Game Studios",
+    "publisher": "Bethesda",
+    "platform": "Xbox 360",
+    "year": 2011,
+    "metacriticScore": 96,
+    "genres": [
+      "RPG",
+      "Open World"
+    ],
+    "steamAppId": 72850,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/72850/library_600x900.jpg"
+  },
+  {
+    "rank": 28,
+    "id": "half-life",
+    "title": "Half-Life",
+    "developer": "Valve",
+    "publisher": "Sierra Studios",
+    "platform": "PC",
+    "year": 1998,
+    "metacriticScore": 96,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": 70,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/70/library_600x900.jpg"
+  },
+  {
+    "rank": 29,
+    "id": "zelda-tears-of-the-kingdom",
+    "title": "The Legend of Zelda: Tears of the Kingdom",
+    "developer": "Nintendo EPD",
+    "publisher": "Nintendo",
+    "platform": "Nintendo Switch",
+    "year": 2023,
+    "metacriticScore": 96,
+    "genres": [
+      "Action-Adventure",
+      "Open World"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 30,
+    "id": "zelda-wind-waker",
+    "title": "The Legend of Zelda: The Wind Waker",
+    "developer": "Nintendo EAD",
+    "publisher": "Nintendo",
+    "platform": "GameCube",
+    "year": 2003,
+    "metacriticScore": 96,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 31,
+    "id": "gran-turismo",
+    "title": "Gran Turismo",
+    "developer": "Polyphony Digital",
+    "publisher": "Sony",
+    "platform": "PlayStation",
+    "year": 1998,
+    "metacriticScore": 96,
+    "genres": [
+      "Racing",
+      "Simulation"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/gran-turismo.jpg",
+    "wikiTitle": "Gran Turismo (video game)"
+  },
+  {
+    "rank": 32,
+    "id": "metal-gear-solid-2",
+    "title": "Metal Gear Solid 2: Sons of Liberty",
+    "developer": "Konami",
+    "publisher": "Konami",
+    "platform": "PlayStation 2",
+    "year": 2001,
+    "metacriticScore": 96,
+    "genres": [
+      "Action-Adventure",
+      "Stealth"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Metal Gear Solid 2: Sons of Liberty"
+  },
+  {
+    "rank": 33,
+    "id": "gta-double-pack",
+    "title": "Grand Theft Auto Double Pack",
+    "developer": "Rockstar North",
+    "publisher": "Rockstar Games",
+    "platform": "Xbox",
+    "year": 2003,
+    "metacriticScore": 96,
+    "genres": [
+      "Action",
+      "Open World"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/doublepack.jpg",
+    "wikiTitle": "Grand Theft Auto Double Pack"
+  },
+  {
+    "rank": 34,
+    "id": "portal-companion-collection",
+    "title": "Portal: Companion Collection",
+    "developer": "Valve",
+    "publisher": "Valve",
+    "platform": "Nintendo Switch",
+    "year": 2022,
+    "metacriticScore": 95,
+    "genres": [
+      "Puzzle",
+      "FPS"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/portal_companion.png",
+    "wikiTitle": "Portal: Companion Collection"
+  },
+  {
+    "rank": 35,
+    "id": "baldurs-gate-2",
+    "title": "Baldur's Gate II: Shadows of Amn",
+    "developer": "BioWare",
+    "publisher": "Interplay",
+    "platform": "PC",
+    "year": 2000,
+    "metacriticScore": 95,
+    "genres": [
+      "RPG"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Baldur's Gate II: Shadows of Amn"
+  },
+  {
+    "rank": 36,
+    "id": "grand-theft-auto-san-andreas",
+    "title": "Grand Theft Auto: San Andreas",
+    "developer": "Rockstar North",
+    "publisher": "Rockstar Games",
+    "platform": "PlayStation 2",
+    "year": 2004,
+    "metacriticScore": 95,
+    "genres": [
+      "Action",
+      "Open World"
+    ],
+    "steamAppId": 12120,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/12120/library_600x900.jpg"
+  },
+  {
+    "rank": 38,
+    "id": "grand-theft-auto-vice-city",
+    "title": "Grand Theft Auto: Vice City",
+    "developer": "Rockstar North",
+    "publisher": "Rockstar Games",
+    "platform": "PlayStation 2",
+    "year": 2002,
+    "metacriticScore": 95,
+    "genres": [
+      "Action",
+      "Open World"
+    ],
+    "steamAppId": 12110,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/12110/library_600x900.jpg"
+  },
+  {
+    "rank": 39,
+    "id": "littlebigplanet",
+    "title": "LittleBigPlanet",
+    "developer": "Media Molecule",
+    "publisher": "Sony",
+    "platform": "PlayStation 3",
+    "year": 2008,
+    "metacriticScore": 95,
+    "genres": [
+      "Platformer",
+      "Puzzle"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/lbp.jpeg",
+    "wikiTitle": "LittleBigPlanet"
+  },
+  {
+    "rank": 40,
+    "id": "zelda-collectors-edition",
+    "title": "The Legend of Zelda Collector's Edition",
+    "developer": "Nintendo EAD",
+    "publisher": "Nintendo",
+    "platform": "GameCube",
+    "year": 2003,
+    "metacriticScore": 95,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/zelda_collectors.jpg"
+  },
+  {
+    "rank": 41,
+    "id": "gran-turismo-3",
+    "title": "Gran Turismo 3: A-Spec",
+    "developer": "Polyphony Digital",
+    "publisher": "Sony",
+    "platform": "PlayStation 2",
+    "year": 2001,
+    "metacriticScore": 95,
+    "genres": [
+      "Racing",
+      "Simulation"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Gran Turismo 3: A-Spec"
+  },
+  {
+    "rank": 42,
+    "id": "halo-2",
+    "title": "Halo 2",
+    "developer": "Bungie",
+    "publisher": "Microsoft",
+    "platform": "Xbox",
+    "year": 2004,
+    "metacriticScore": 95,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 43,
+    "id": "zelda-alttp-gba",
+    "title": "The Legend of Zelda: A Link to the Past",
+    "developer": "Nintendo EAD",
+    "publisher": "Nintendo",
+    "platform": "Game Boy Advance",
+    "year": 2002,
+    "metacriticScore": 95,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 44,
+    "id": "zelda-majoras-mask",
+    "title": "The Legend of Zelda: Majora's Mask",
+    "developer": "Nintendo EAD",
+    "publisher": "Nintendo",
+    "platform": "Nintendo 64",
+    "year": 2000,
+    "metacriticScore": 95,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 45,
+    "id": "the-last-of-us",
+    "title": "The Last of Us",
+    "developer": "Naughty Dog",
+    "publisher": "Sony",
+    "platform": "PlayStation 3",
+    "year": 2013,
+    "metacriticScore": 95,
+    "genres": [
+      "Action-Adventure",
+      "Survival"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/tlou.jpg",
+    "wikiTitle": "The Last of Us"
+  },
+  {
+    "rank": 46,
+    "id": "zelda-twilight-princess",
+    "title": "The Legend of Zelda: Twilight Princess",
+    "developer": "Nintendo EAD",
+    "publisher": "Nintendo",
+    "platform": "Wii",
+    "year": 2006,
+    "metacriticScore": 95,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 47,
+    "id": "madden-nfl-2003",
+    "title": "Madden NFL 2003",
+    "developer": "EA Tiburon",
+    "publisher": "EA Sports",
+    "platform": "PlayStation 2",
+    "year": 2002,
+    "metacriticScore": 95,
+    "genres": [
+      "Sports",
+      "Football"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 48,
+    "id": "persona-5-royal",
+    "title": "Persona 5 Royal",
+    "developer": "Atlus",
+    "publisher": "Atlus",
+    "platform": "PlayStation 4",
+    "year": 2020,
+    "metacriticScore": 95,
+    "genres": [
+      "RPG",
+      "JRPG"
+    ],
+    "steamAppId": 1687950,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1687950/library_600x900.jpg"
+  },
+  {
+    "rank": 50,
+    "id": "red-dead-redemption",
+    "title": "Red Dead Redemption",
+    "developer": "Rockstar San Diego",
+    "publisher": "Rockstar Games",
+    "platform": "Xbox 360",
+    "year": 2010,
+    "metacriticScore": 95,
+    "genres": [
+      "Action-Adventure",
+      "Open World"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 51,
+    "id": "hades-ii",
+    "title": "Hades II",
+    "developer": "Supergiant Games",
+    "publisher": "Supergiant Games",
+    "platform": "PC",
+    "year": 2025,
+    "metacriticScore": 95,
+    "genres": [
+      "Roguelike",
+      "Action"
+    ],
+    "steamAppId": 1145350,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900.jpg"
+  },
+  {
+    "rank": 52,
+    "id": "portal-2",
+    "title": "Portal 2",
+    "developer": "Valve",
+    "publisher": "Valve",
+    "platform": "PC",
+    "year": 2011,
+    "metacriticScore": 95,
+    "genres": [
+      "Puzzle",
+      "FPS"
+    ],
+    "steamAppId": 620,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/620/library_600x900.jpg"
+  },
+  {
+    "rank": 54,
+    "id": "astro-bot",
+    "title": "Astro Bot",
+    "developer": "Team Asobi",
+    "publisher": "Sony",
+    "platform": "PlayStation 5",
+    "year": 2024,
+    "metacriticScore": 94,
+    "genres": [
+      "Platformer"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/astrobot.jpg",
+    "wikiTitle": "Astro Bot (video game)"
+  },
+  {
+    "rank": 55,
+    "id": "final-fantasy-ix",
+    "title": "Final Fantasy IX",
+    "developer": "Square",
+    "publisher": "Square",
+    "platform": "PlayStation",
+    "year": 2000,
+    "metacriticScore": 94,
+    "genres": [
+      "RPG",
+      "JRPG"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Final Fantasy IX"
+  },
+  {
+    "rank": 56,
+    "id": "god-of-war-2018",
+    "title": "God of War",
+    "developer": "Santa Monica Studio",
+    "publisher": "Sony",
+    "platform": "PlayStation 4",
+    "year": 2018,
+    "metacriticScore": 94,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": 1593500,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1593500/library_600x900.jpg",
+    "wikiTitle": "God of War (2018 video game)"
+  },
+  {
+    "rank": 57,
+    "id": "elden-ring-shadow",
+    "title": "Elden Ring: Shadow of the Erdtree",
+    "developer": "FromSoftware",
+    "publisher": "Bandai Namco",
+    "platform": "PC",
+    "year": 2024,
+    "metacriticScore": 94,
+    "genres": [
+      "Action RPG"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/erdtree.jpg",
+    "wikiTitle": "Elden Ring: Shadow of the Erdtree"
+  },
+  {
+    "rank": 58,
+    "id": "tony-hawk-pro-skater-4",
+    "title": "Tony Hawk's Pro Skater 4",
+    "developer": "Neversoft",
+    "publisher": "Activision",
+    "platform": "PlayStation 2",
+    "year": 2002,
+    "metacriticScore": 94,
+    "genres": [
+      "Sports",
+      "Skateboarding"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 59,
+    "id": "devil-may-cry",
+    "title": "Devil May Cry",
+    "developer": "Capcom",
+    "publisher": "Capcom",
+    "platform": "PlayStation 2",
+    "year": 2001,
+    "metacriticScore": 94,
+    "genres": [
+      "Action"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Devil May Cry (video game)"
+  },
+  {
+    "rank": 60,
+    "id": "madden-nfl-2002",
+    "title": "Madden NFL 2002",
+    "developer": "EA Tiburon",
+    "publisher": "EA Sports",
+    "platform": "PlayStation 2",
+    "year": 2001,
+    "metacriticScore": 94,
+    "genres": [
+      "Sports",
+      "Football"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 61,
+    "id": "batman-arkham-city",
+    "title": "Batman: Arkham City",
+    "developer": "Rocksteady Studios",
+    "publisher": "Warner Bros.",
+    "platform": "Xbox 360",
+    "year": 2011,
+    "metacriticScore": 94,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": 200260,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/200260/library_600x900.jpg"
+  },
+  {
+    "rank": 64,
+    "id": "chrono-cross",
+    "title": "Chrono Cross",
+    "developer": "Square",
+    "publisher": "Square",
+    "platform": "PlayStation",
+    "year": 2000,
+    "metacriticScore": 94,
+    "genres": [
+      "RPG",
+      "JRPG"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Chrono Cross"
+  },
+  {
+    "rank": 65,
+    "id": "madden-nfl-2004",
+    "title": "Madden NFL 2004",
+    "developer": "EA Tiburon",
+    "publisher": "EA Sports",
+    "platform": "PlayStation 2",
+    "year": 2003,
+    "metacriticScore": 94,
+    "genres": [
+      "Sports",
+      "Football"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 66,
+    "id": "gears-of-war",
+    "title": "Gears of War",
+    "developer": "Epic Games",
+    "publisher": "Microsoft",
+    "platform": "Xbox 360",
+    "year": 2006,
+    "metacriticScore": 94,
+    "genres": [
+      "TPS",
+      "Action"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Gears of War (video game)"
+  },
+  {
+    "rank": 67,
+    "id": "oblivion",
+    "title": "The Elder Scrolls IV: Oblivion",
+    "developer": "Bethesda Game Studios",
+    "publisher": "Bethesda",
+    "platform": "Xbox 360",
+    "year": 2006,
+    "metacriticScore": 94,
+    "genres": [
+      "RPG",
+      "Open World"
+    ],
+    "steamAppId": 22330,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/22330/library_600x900.jpg"
+  },
+  {
+    "rank": 68,
+    "id": "civilization-ii",
+    "title": "Sid Meier's Civilization II",
+    "developer": "MicroProse",
+    "publisher": "MicroProse",
+    "platform": "PC",
+    "year": 1996,
+    "metacriticScore": 94,
+    "genres": [
+      "Strategy",
+      "Turn-Based"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/civ2.jpg"
+  },
+  {
+    "rank": 69,
+    "id": "quake",
+    "title": "Quake",
+    "developer": "id Software",
+    "publisher": "GT Interactive",
+    "platform": "PC",
+    "year": 1996,
+    "metacriticScore": 94,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": 2310,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/2310/library_600x900.jpg"
+  },
+  {
+    "rank": 70,
+    "id": "metaphor-refantazio",
+    "title": "Metaphor: ReFantazio",
+    "developer": "Studio Zero",
+    "publisher": "Atlus",
+    "platform": "PC",
+    "year": 2024,
+    "metacriticScore": 94,
+    "genres": [
+      "RPG",
+      "JRPG"
+    ],
+    "steamAppId": 2679460,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg"
+  },
+  {
+    "rank": 71,
+    "id": "call-of-duty-4",
+    "title": "Call of Duty 4: Modern Warfare",
+    "developer": "Infinity Ward",
+    "publisher": "Activision",
+    "platform": "Xbox 360",
+    "year": 2007,
+    "metacriticScore": 94,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 72,
+    "id": "bioshock-infinite",
+    "title": "BioShock Infinite",
+    "developer": "Irrational Games",
+    "publisher": "2K Games",
+    "platform": "PC",
+    "year": 2013,
+    "metacriticScore": 94,
+    "genres": [
+      "FPS",
+      "Action"
+    ],
+    "steamAppId": 8870,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/8870/library_600x900.jpg"
+  },
+  {
+    "rank": 73,
+    "id": "halo-3",
+    "title": "Halo 3",
+    "developer": "Bungie",
+    "publisher": "Microsoft",
+    "platform": "Xbox 360",
+    "year": 2007,
+    "metacriticScore": 94,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 74,
+    "id": "ninja-gaiden-black",
+    "title": "Ninja Gaiden Black",
+    "developer": "Team Ninja",
+    "publisher": "Tecmo",
+    "platform": "Xbox",
+    "year": 2005,
+    "metacriticScore": 94,
+    "genres": [
+      "Action"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/ninjagaidenblack.jpg",
+    "wikiTitle": "Ninja Gaiden Black"
+  },
+  {
+    "rank": 75,
+    "id": "metal-gear-solid",
+    "title": "Metal Gear Solid",
+    "developer": "Konami",
+    "publisher": "Konami",
+    "platform": "PlayStation",
+    "year": 1998,
+    "metacriticScore": 94,
+    "genres": [
+      "Action-Adventure",
+      "Stealth"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Metal Gear Solid"
+  },
+  {
+    "rank": 76,
+    "id": "grim-fandango",
+    "title": "Grim Fandango",
+    "developer": "LucasArts",
+    "publisher": "LucasArts",
+    "platform": "PC",
+    "year": 1998,
+    "metacriticScore": 94,
+    "genres": [
+      "Adventure",
+      "Point-and-Click"
+    ],
+    "steamAppId": 316790,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/316790/library_600x900.jpg"
+  },
+  {
+    "rank": 77,
+    "id": "super-mario-advance-4",
+    "title": "Super Mario Advance 4: Super Mario Bros. 3",
+    "developer": "Nintendo R&D2",
+    "publisher": "Nintendo",
+    "platform": "Game Boy Advance",
+    "year": 2003,
+    "metacriticScore": 94,
+    "genres": [
+      "Platformer"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "caseShape": "square"
+  },
+  {
+    "rank": 78,
+    "id": "jet-set-radio",
+    "title": "Jet Set Radio",
+    "developer": "Smilebit",
+    "publisher": "Sega",
+    "platform": "Dreamcast",
+    "year": 2000,
+    "metacriticScore": 94,
+    "genres": [
+      "Action",
+      "Music"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Jet Set Radio"
+  },
+  {
+    "rank": 79,
+    "id": "splinter-cell-chaos-theory",
+    "title": "Tom Clancy's Splinter Cell: Chaos Theory",
+    "developer": "Ubisoft Montreal",
+    "publisher": "Ubisoft",
+    "platform": "Xbox",
+    "year": 2005,
+    "metacriticScore": 94,
+    "genres": [
+      "Action-Adventure",
+      "Stealth"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 80,
+    "id": "god-of-war-ragnarok",
+    "title": "God of War Ragnarök",
+    "developer": "Santa Monica Studio",
+    "publisher": "Sony",
+    "platform": "PlayStation 5",
+    "year": 2022,
+    "metacriticScore": 94,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": 2322010,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/2322010/library_600x900.jpg",
+    "wikiTitle": "God of War Ragnarök"
+  },
+  {
+    "rank": 81,
+    "id": "resident-evil-code-veronica",
+    "title": "Resident Evil Code: Veronica",
+    "developer": "Capcom",
+    "publisher": "Capcom",
+    "platform": "Dreamcast",
+    "year": 2000,
+    "metacriticScore": 94,
+    "genres": [
+      "Survival Horror"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/recv.jpg",
+    "wikiTitle": "Resident Evil – Code: Veronica"
+  },
+  {
+    "rank": 82,
+    "id": "burnout-3",
+    "title": "Burnout 3: Takedown",
+    "developer": "Criterion Games",
+    "publisher": "EA Games",
+    "platform": "PlayStation 2",
+    "year": 2004,
+    "metacriticScore": 94,
+    "genres": [
+      "Racing",
+      "Action"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Burnout 3: Takedown"
+  },
+  {
+    "rank": 83,
+    "id": "diablo",
+    "title": "Diablo",
+    "developer": "Blizzard Entertainment",
+    "publisher": "Blizzard",
+    "platform": "PC",
+    "year": 1996,
+    "metacriticScore": 94,
+    "genres": [
+      "Action RPG"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 84,
+    "id": "metal-gear-solid-3-subsistence",
+    "title": "Metal Gear Solid 3: Subsistence",
+    "developer": "Konami",
+    "publisher": "Konami",
+    "platform": "PlayStation 2",
+    "year": 2006,
+    "metacriticScore": 94,
+    "genres": [
+      "Action-Adventure",
+      "Stealth"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "Metal Gear Solid 3: Snake Eater"
+  },
+  {
+    "rank": 85,
+    "id": "call-of-duty-mw2",
+    "title": "Call of Duty: Modern Warfare 2",
+    "developer": "Infinity Ward",
+    "publisher": "Activision",
+    "platform": "Xbox 360",
+    "year": 2009,
+    "metacriticScore": 94,
+    "genres": [
+      "FPS"
+    ],
+    "steamAppId": 10180,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/10180/library_600x900.jpg"
+  },
+  {
+    "rank": 86,
+    "id": "metal-gear-solid-4",
+    "title": "Metal Gear Solid 4: Guns of the Patriots",
+    "developer": "Konami",
+    "publisher": "Konami",
+    "platform": "PlayStation 3",
+    "year": 2008,
+    "metacriticScore": 94,
+    "genres": [
+      "Action-Adventure",
+      "Stealth"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/mgs4.jpg",
+    "wikiTitle": "Metal Gear Solid 4: Guns of the Patriots"
+  },
+  {
+    "rank": 87,
+    "id": "god-of-war-ps2",
+    "title": "God of War",
+    "developer": "Santa Monica Studio",
+    "publisher": "Sony",
+    "platform": "PlayStation 2",
+    "year": 2005,
+    "metacriticScore": 94,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": "",
+    "wikiTitle": "God of War (2005 video game)"
+  },
+  {
+    "rank": 88,
+    "id": "kotor",
+    "title": "Star Wars: Knights of the Old Republic",
+    "developer": "BioWare",
+    "publisher": "LucasArts",
+    "platform": "Xbox",
+    "year": 2003,
+    "metacriticScore": 94,
+    "genres": [
+      "RPG",
+      "Action"
+    ],
+    "steamAppId": 32370,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/32370/library_600x900.jpg"
+  },
+  {
+    "rank": 89,
+    "id": "civilization-iv",
+    "title": "Sid Meier's Civilization IV",
+    "developer": "Firaxis Games",
+    "publisher": "2K Games",
+    "platform": "PC",
+    "year": 2005,
+    "metacriticScore": 94,
+    "genres": [
+      "Strategy",
+      "Turn-Based"
+    ],
+    "steamAppId": 3900,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/3900/library_600x900.jpg"
+  },
+  {
+    "rank": 90,
+    "id": "virtua-fighter-4",
+    "title": "Virtua Fighter 4",
+    "developer": "AM2",
+    "publisher": "Sega",
+    "platform": "PlayStation 2",
+    "year": 2002,
+    "metacriticScore": 94,
+    "genres": [
+      "Fighting"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 91,
+    "id": "super-smash-bros-brawl",
+    "title": "Super Smash Bros. Brawl",
+    "developer": "HAL Laboratory",
+    "publisher": "Nintendo",
+    "platform": "Wii",
+    "year": 2008,
+    "metacriticScore": 93,
+    "genres": [
+      "Fighting"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 92,
+    "id": "company-of-heroes",
+    "title": "Company of Heroes",
+    "developer": "Relic Entertainment",
+    "publisher": "THQ",
+    "platform": "PC",
+    "year": 2006,
+    "metacriticScore": 93,
+    "genres": [
+      "RTS",
+      "Strategy"
+    ],
+    "steamAppId": 228200,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/228200/library_600x900.jpg"
+  },
+  {
+    "rank": 93,
+    "id": "gran-turismo-2",
+    "title": "Gran Turismo 2",
+    "developer": "Polyphony Digital",
+    "publisher": "Sony",
+    "platform": "PlayStation",
+    "year": 1999,
+    "metacriticScore": 93,
+    "genres": [
+      "Racing",
+      "Simulation"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/GranTurismo2.jpg",
+    "wikiTitle": "Gran Turismo 2"
+  },
+  {
+    "rank": 94,
+    "id": "the-last-of-us-part-2",
+    "title": "The Last of Us Part II",
+    "developer": "Naughty Dog",
+    "publisher": "Sony",
+    "platform": "PlayStation 4",
+    "year": 2020,
+    "metacriticScore": 93,
+    "genres": [
+      "Action-Adventure",
+      "Survival"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/tlou2.jpg",
+    "wikiTitle": "The Last of Us Part II"
+  },
+  {
+    "rank": 95,
+    "id": "splinter-cell-pandora-tomorrow",
+    "title": "Tom Clancy's Splinter Cell: Pandora Tomorrow",
+    "developer": "Ubisoft Shanghai",
+    "publisher": "Ubisoft",
+    "platform": "Xbox",
+    "year": 2004,
+    "metacriticScore": 93,
+    "genres": [
+      "Action-Adventure",
+      "Stealth"
+    ],
+    "steamAppId": null,
+    "coverUrl": ""
+  },
+  {
+    "rank": 96,
+    "id": "gta-chinatown-wars",
+    "title": "Grand Theft Auto: Chinatown Wars",
+    "developer": "Rockstar Leeds",
+    "publisher": "Rockstar Games",
+    "platform": "Nintendo DS",
+    "year": 2009,
+    "metacriticScore": 93,
+    "genres": [
+      "Action",
+      "Open World"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/chinatownwars.jpg",
+    "caseShape": "square"
+  },
+  {
+    "rank": 97,
+    "id": "witcher-3",
+    "title": "The Witcher 3: Wild Hunt",
+    "developer": "CD Projekt RED",
+    "publisher": "CD Projekt",
+    "platform": "PC",
+    "year": 2015,
+    "metacriticScore": 93,
+    "genres": [
+      "RPG",
+      "Open World"
+    ],
+    "steamAppId": 292030,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/292030/library_600x900.jpg"
+  },
+  {
+    "rank": 98,
+    "id": "hades",
+    "title": "Hades",
+    "developer": "Supergiant Games",
+    "publisher": "Supergiant Games",
+    "platform": "PC",
+    "year": 2020,
+    "metacriticScore": 93,
+    "genres": [
+      "Roguelike",
+      "Action"
+    ],
+    "steamAppId": 1145360,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/library_600x900.jpg"
+  },
+  {
+    "rank": 99,
+    "id": "divinity-original-sin-2",
+    "title": "Divinity: Original Sin 2",
+    "developer": "Larian Studios",
+    "publisher": "Larian Studios",
+    "platform": "PC",
+    "year": 2017,
+    "metacriticScore": 93,
+    "genres": [
+      "RPG",
+      "Turn-Based"
+    ],
+    "steamAppId": 435150,
+    "coverUrl": "https://cdn.cloudflare.steamstatic.com/steam/apps/435150/library_600x900.jpg"
+  },
+  {
+    "rank": 100,
+    "id": "god-of-war-2",
+    "title": "God of War II",
+    "developer": "Santa Monica Studio",
+    "publisher": "Sony",
+    "platform": "PlayStation 2",
+    "year": 2007,
+    "metacriticScore": 93,
+    "genres": [
+      "Action-Adventure"
+    ],
+    "steamAppId": null,
+    "coverUrl": "/godofwar2.jpg",
+    "wikiTitle": "God of War II"
+  }
+]
