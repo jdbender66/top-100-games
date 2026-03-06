@@ -207,8 +207,27 @@ export default function Home() {
     window.open(tweetUrl, "_blank")
   }, [playedCount, currentTier.label])
 
-  // Number of columns in the export grid (max 10)
-  const exportCols = Math.min(Math.max(playedCount, 1), 10)
+  // ── Export grid geometry ──────────────────────────────────────────────────
+  // Square canvas: 1200×1200. Optimal cols/rows via √N so covers are as large
+  // as possible while keeping incomplete rows centred.
+  const EXPORT_SIZE   = 1200
+  const EXPORT_PAD    = 40
+  const EXPORT_GAP    = 8
+  const HEADER_H      = 175   // title (~56px) + badge row (~90px) + spacing
+  const FOOTER_H      = 50    // watermark + margin
+  const gridAreaW     = EXPORT_SIZE - EXPORT_PAD * 2              // 1120
+  const gridAreaH     = EXPORT_SIZE - EXPORT_PAD * 2 - HEADER_H - FOOTER_H // 855
+
+  const exportCount   = Math.max(playedGames.length, 1)
+  const exportCols    = Math.ceil(Math.sqrt(exportCount))
+  const exportRows    = Math.ceil(exportCount / exportCols)
+
+  // Largest cell that fits both width-wise and height-wise (3:4 portrait ratio)
+  const cellWFromW    = Math.floor((gridAreaW - (exportCols - 1) * EXPORT_GAP) / exportCols)
+  const cellHFromH    = Math.floor((gridAreaH - (exportRows - 1) * EXPORT_GAP) / exportRows)
+  const cellWFromH    = Math.floor(cellHFromH * 3 / 4)
+  const exportCellW   = Math.min(cellWFromW, cellWFromH)
+  const exportCellH   = Math.floor(exportCellW * 4 / 3)
 
   return (
     <div style={{ minHeight: "100vh", background: "#07071a" }}>
@@ -573,120 +592,121 @@ export default function Home() {
         </div>
       )}
 
-      {/* ── Hidden export grid ──────────────────────────────── */}
+      {/* ── Hidden export grid (1200×1200 square) ───────────── */}
       <div
         id="export-grid"
         style={{
           position: "fixed",
           left: 0,
           top: 0,
-          width: 1200,
-          padding: "40px 40px 48px",
+          width: EXPORT_SIZE,
+          height: EXPORT_SIZE,
+          boxSizing: "border-box",
+          padding: EXPORT_PAD,
           background: "#07071a",
           opacity: 0,
           visibility: "hidden",
           pointerEvents: "none",
           zIndex: -1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
         }}
         aria-hidden
       >
-        {/* Line 1: title, centered, alone */}
+        {/* Title */}
         <div style={{
           textAlign: "center",
           fontFamily: "var(--font-vt323), monospace",
           fontSize: 36,
           color: "#c8c4e0",
           letterSpacing: "0.08em",
-          marginBottom: 20,
+          marginBottom: 16,
+          flexShrink: 0,
         }}>
           I&apos;VE PLAYED {playedCount}/100 METACRITIC TOP 100 GAMES
         </div>
 
-        {/* Line 2: badge + tier name, centered */}
+        {/* Badge + tier */}
         <div style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: "14px",
-          marginBottom: 32,
+          gap: 14,
+          marginBottom: 24,
+          flexShrink: 0,
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={currentTier.badge}
-            alt={currentTier.label}
-            style={{ height: "72px", width: "auto", objectFit: "contain" }}
-          />
+          <img src={currentTier.badge} alt={currentTier.label}
+            style={{ height: 72, width: "auto", objectFit: "contain" }} />
           <div style={{
-            color: "#00e096",
-            fontSize: 28,
-            fontFamily: "var(--font-vt323), monospace",
-            letterSpacing: "0.06em",
+            color: "#00e096", fontSize: 28,
+            fontFamily: "var(--font-vt323), monospace", letterSpacing: "0.06em",
           }}>
             {currentTier.label}
           </div>
         </div>
 
-        {/* Played games grid — only games the user has completed */}
+        {/* Game covers — row-by-row so incomplete last row stays centred */}
         {playedGames.length > 0 && (
           <div style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${exportCols}, 1fr)`,
-            gap: 8,
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: EXPORT_GAP,
           }}>
-            {playedGames.map((game) => (
-              <div
-                key={game.id}
-                style={{
-                  position: "relative",
-                  aspectRatio: "3/4",
-                  overflow: "hidden",
-                  outline: "2px solid #00e096",
-                }}
-              >
-                {exportImageMap[game.id] ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={exportImageMap[game.id]}
-                    alt={game.title}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      background: "#0d0d28",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <span style={{
-                      fontSize: 10,
-                      color: "#404080",
-                      textAlign: "center",
-                      padding: 4,
-                      fontFamily: "monospace",
+            {Array.from({ length: exportRows }, (_, rowIdx) => {
+              const rowGames = playedGames.slice(
+                rowIdx * exportCols,
+                (rowIdx + 1) * exportCols
+              )
+              return (
+                <div key={rowIdx} style={{ display: "flex", gap: EXPORT_GAP, justifyContent: "center" }}>
+                  {rowGames.map((game) => (
+                    <div key={game.id} style={{
+                      width: exportCellW,
+                      height: exportCellH,
+                      flexShrink: 0,
+                      overflow: "hidden",
+                      outline: "2px solid #00e096",
                     }}>
-                      {game.title}
-                    </span>
-                  </div>
-                )}
-              </div>
-            ))}
+                      {exportImageMap[game.id] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={exportImageMap[game.id]} alt={game.title}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ) : (
+                        <div style={{
+                          width: "100%", height: "100%", background: "#0d0d28",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          <span style={{
+                            fontSize: Math.max(8, Math.floor(exportCellW / 10)),
+                            color: "#404080", textAlign: "center",
+                            padding: 4, fontFamily: "monospace",
+                          }}>{game.title}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
           </div>
         )}
 
         {/* Footer watermark */}
         <div style={{
-          marginTop: 20,
+          flexShrink: 0,
+          marginTop: 16,
           textAlign: "center",
-          fontFamily: "monospace",
-          fontSize: 12,
-          color: "#2a2a50",
-          letterSpacing: "0.06em",
+          fontFamily: "var(--font-vt323), monospace",
+          fontSize: 22,
+          color: "#6060a0",
+          letterSpacing: "0.08em",
         }}>
-          metacritic-top100.vercel.app
+          top-100-games.vercel.app
         </div>
       </div>
     </div>
