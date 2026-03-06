@@ -160,6 +160,14 @@ export default function Home() {
       grid.style.setProperty("z-index", "-1", "important")
       grid.style.setProperty("visibility", "hidden", "important")
 
+      // Step 6: Copy image to clipboard now so it's ready before the modal opens
+      setClipboardCopied(false)
+      try {
+        const blob = await fetch(dataUrl).then((r) => r.blob())
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+        setClipboardCopied(true)
+      } catch { /* clipboard unavailable — hint won't show */ }
+
       setExportDataUrl(dataUrl)
       setExportModalOpen(true)
     } catch (e) {
@@ -176,26 +184,12 @@ export default function Home() {
     link.click()
   }, [exportDataUrl, playedCount])
 
-  const handleShareToX = useCallback(async () => {
+  const handleShareToX = useCallback(() => {
     const text = `I've played ${playedCount}/100 of the Metacritic Top 100 games!\n\nMy rank: ${currentTier.label} 🎮\n\nFind out how many you have played at:\nhttps://top-100-games.vercel.app/`
-
-    // Copy image to clipboard so user can paste it directly into the tweet
-    setClipboardCopied(false)
-    try {
-      const res = await fetch(exportDataUrl)
-      const blob = await res.blob()
-      await navigator.clipboard.write([
-        new ClipboardItem({ "image/png": blob }),
-      ])
-      setClipboardCopied(true)
-    } catch {
-      // Clipboard API unavailable — user will need to attach manually
-    }
-
-    // Open X tweet composer directly (opens X app on mobile, browser tab on desktop)
+    // Image is already in clipboard from when the share image was generated
     const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`
     window.open(tweetUrl, "_blank")
-  }, [exportDataUrl, playedCount, currentTier.label])
+  }, [playedCount, currentTier.label])
 
   // Number of columns in the export grid (max 10)
   const exportCols = Math.min(Math.max(playedCount, 1), 10)
