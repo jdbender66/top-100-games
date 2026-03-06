@@ -175,7 +175,7 @@ export default function Home() {
   }, [exportDataUrl, playedCount])
 
   const handleShareToX = useCallback(async () => {
-    const text = `I've played ${playedCount}/100 of the Metacritic Top 100 games!\nMy rank: ${currentTier.label} 🎮\n\n#Metacritic #Gaming #Top100Games`
+    const text = `I've played ${playedCount}/100 of the Metacritic Top 100 games!\n\nMy rank: ${currentTier.label} 🎮`
     // Try Web Share API with image file (works on mobile)
     if (typeof navigator !== "undefined" && navigator.canShare) {
       try {
