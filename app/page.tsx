@@ -67,6 +67,8 @@ export default function Home() {
   const [exportDataUrl, setExportDataUrl] = useState<string>("")
   // Pre-loaded cover images as data URLs for export (bypasses CORS)
   const [exportImageMap, setExportImageMap] = useState<Record<string, string>>({})
+  // Clipboard copy status for X share UX hint
+  const [clipboardCopied, setClipboardCopied] = useState(false)
 
   useEffect(() => {
     try {
@@ -175,20 +177,22 @@ export default function Home() {
   }, [exportDataUrl, playedCount])
 
   const handleShareToX = useCallback(async () => {
-    const text = `I've played ${playedCount}/100 of the Metacritic Top 100 games!\n\nMy rank: ${currentTier.label} 🎮`
-    // Try Web Share API with image file (works on mobile)
-    if (typeof navigator !== "undefined" && navigator.canShare) {
-      try {
-        const res = await fetch(exportDataUrl)
-        const blob = await res.blob()
-        const file = new File([blob], "metacritic-top100.png", { type: "image/png" })
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], text })
-          return
-        }
-      } catch {}
+    const text = `I've played ${playedCount}/100 of the Metacritic Top 100 games!\n\nMy rank: ${currentTier.label} 🎮\n\nFind out how many you have played at:\nhttps://top-100-games.vercel.app/`
+
+    // Copy image to clipboard so user can paste it directly into the tweet
+    setClipboardCopied(false)
+    try {
+      const res = await fetch(exportDataUrl)
+      const blob = await res.blob()
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": blob }),
+      ])
+      setClipboardCopied(true)
+    } catch {
+      // Clipboard API unavailable — user will need to attach manually
     }
-    // Fallback: open X intent with text
+
+    // Open X tweet composer directly (opens X app on mobile, browser tab on desktop)
     const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`
     window.open(tweetUrl, "_blank")
   }, [exportDataUrl, playedCount, currentTier.label])
@@ -492,6 +496,20 @@ export default function Home() {
                 style={{ width: "100%", display: "block", border: "1px solid #1a1a44" }}
               />
             </div>
+
+            {/* Clipboard hint after clicking Share to X on desktop */}
+            {clipboardCopied && (
+              <div style={{
+                fontFamily: "var(--font-vt323), monospace",
+                fontSize: 15,
+                color: "#00e096",
+                letterSpacing: "0.05em",
+                textAlign: "center",
+                padding: "6px 0 0",
+              }}>
+                📋 Image copied to clipboard — paste it into your tweet (⌘V / Ctrl+V)
+              </div>
+            )}
 
             {/* Action buttons */}
             <div style={{ display: "flex", gap: "10px" }}>
