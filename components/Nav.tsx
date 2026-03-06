@@ -42,18 +42,6 @@ export default function Nav() {
         userSelect: "none",
       }}
     >
-      {/* macOS-style traffic lights */}
-      <div style={{ display: "flex", gap: "6px", marginRight: "14px", alignItems: "center" }}>
-        <div
-          style={{ width: 11, height: 11, borderRadius: "50%", background: "#ff5f57", border: "1px solid rgba(0,0,0,0.3)" }}
-        />
-        <div
-          style={{ width: 11, height: 11, borderRadius: "50%", background: "#febc2e", border: "1px solid rgba(0,0,0,0.3)" }}
-        />
-        <div
-          style={{ width: 11, height: 11, borderRadius: "50%", background: "#28c840", border: "1px solid rgba(0,0,0,0.3)" }}
-        />
-      </div>
 
       {/* Separator */}
       <div style={{ width: 1, height: 18, background: "#1e1e5a", marginRight: "14px" }} />

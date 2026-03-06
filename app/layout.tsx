@@ -34,6 +34,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <TooltipProvider>
           <Nav />
           <main style={{ paddingTop: "72px" }}>{children}</main>
+          <footer style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            padding: "12px 0 16px",
+            opacity: 0.4,
+            fontSize: "13px",
+            color: "#c8c4e0",
+            fontFamily: "var(--font-vt323), monospace",
+          }}>
+            <img src="/mantis.png" alt="Based Mantis Labs" style={{ width: 20, height: 20, objectFit: "contain" }} />
+            Based Mantis Labs
+          </footer>
         </TooltipProvider>
       </body>
     </html>
