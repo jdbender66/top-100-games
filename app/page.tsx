@@ -65,6 +65,8 @@ export default function Home() {
   const [isExporting, setIsExporting] = useState(false)
   const [exportModalOpen, setExportModalOpen] = useState(false)
   const [exportDataUrl, setExportDataUrl] = useState<string>("")
+  // Pre-loaded cover images as data URLs for export (bypasses CORS)
+  const [exportImageMap, setExportImageMap] = useState<Record<string, string>>({})
 
   useEffect(() => {
     try {
@@ -100,30 +102,58 @@ export default function Home() {
   const currentTier = getTier(playedCount)
 
   const handleExport = useCallback(async () => {
-    setIsExporting(true)
+    setIsExporting(true) // immediately shows full-screen loading overlay, hiding any flash
     try {
       const { toPng } = await import("html-to-image")
       const grid = document.getElementById("export-grid")
       if (!grid) return
 
-      // Move off-screen but fully visible so html-to-image can render it
-      // Use visibility + position trick instead of opacity so React re-renders
-      // don't accidentally reset opacity mid-capture
+      // Step 1: Pre-fetch all played game cover images as data URLs.
+      // This avoids CORS failures inside html-to-image, since data URLs
+      // are embedded in memory and have no origin restrictions.
+      const map: Record<string, string> = {}
+      await Promise.allSettled(
+        playedGames.map(async (game) => {
+          if (!game.coverUrl) return
+          const src = game.coverUrl.startsWith("/")
+            ? game.coverUrl
+            : `/api/proxy-image?url=${encodeURIComponent(game.coverUrl)}`
+          try {
+            const res = await fetch(src)
+            if (!res.ok) return
+            const blob = await res.blob()
+            map[game.id] = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader()
+              reader.onload = () => resolve(reader.result as string)
+              reader.onerror = reject
+              reader.readAsDataURL(blob)
+            })
+          } catch { /* skip — image will be blank placeholder */ }
+        })
+      )
+
+      // Step 2: Push data URLs into React state so the export grid renders them
+      setExportImageMap(map)
+
+      // Step 3: Give React one frame to commit the new img srcs
+      await new Promise((r) => setTimeout(r, 80))
+
+      // Step 4: Make export grid visible (loading overlay already covers any flash)
       grid.style.setProperty("visibility", "visible", "important")
       grid.style.setProperty("opacity", "1", "important")
       grid.style.setProperty("z-index", "9999", "important")
       grid.style.setProperty("left", "0px", "important")
       grid.style.setProperty("top", "0px", "important")
 
-      // Wait for images to paint
-      await new Promise((r) => setTimeout(r, 300))
+      // One more tick for the browser to paint
+      await new Promise((r) => setTimeout(r, 80))
 
       const dataUrl = await toPng(grid, {
         backgroundColor: "#07071a",
         pixelRatio: 2,
       })
 
-      // Hide again
+      // Step 5: Hide export grid again
       grid.style.setProperty("opacity", "0", "important")
       grid.style.setProperty("z-index", "-1", "important")
       grid.style.setProperty("visibility", "hidden", "important")
@@ -133,9 +163,9 @@ export default function Home() {
     } catch (e) {
       console.error(e)
     } finally {
-      setIsExporting(false)
+      setIsExporting(false) // loading overlay disappears; modal takes over
     }
-  }, [playedCount])
+  }, [playedCount, playedGames])
 
   const handleDownload = useCallback(() => {
     const link = document.createElement("a")
@@ -375,6 +405,30 @@ export default function Home() {
         </SheetContent>
       </Sheet>
 
+      {/* ── Generating overlay (covers any export grid flash) ── */}
+      {isExporting && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(7,7,26,0.96)",
+          zIndex: 10000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "var(--font-vt323), monospace",
+          flexDirection: "column",
+          gap: "12px",
+        }}>
+          <div style={{ fontSize: 28, color: "#00e096", letterSpacing: "0.1em",
+            textShadow: "0 0 20px rgba(0,224,150,0.5)" }}>
+            GENERATING IMAGE...
+          </div>
+          <div style={{ fontSize: 16, color: "#5a5a90", letterSpacing: "0.06em" }}>
+            Loading artwork...
+          </div>
+        </div>
+      )}
+
       {/* ── Export preview modal ─────────────────────────────── */}
       {exportModalOpen && (
         <div
@@ -561,10 +615,10 @@ export default function Home() {
                   outline: "2px solid #00e096",
                 }}
               >
-                {game.coverUrl ? (
+                {exportImageMap[game.id] || game.coverUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={proxyImageSrc(game.coverUrl)}
+                    src={exportImageMap[game.id] || proxyImageSrc(game.coverUrl)}
                     alt={game.title}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
