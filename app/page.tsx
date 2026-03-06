@@ -6,8 +6,7 @@ import { BarChart2, Download, X } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import GameCard from "@/components/GameCard"
 import StatsPanel from "@/components/StatsPanel"
-import { ALL_GAMES, sortGames } from "@/lib/games"
-import type { SortKey } from "@/types/game"
+import { ALL_GAMES } from "@/lib/games"
 
 const STORAGE_KEY = "metacritic100_played"
 
@@ -60,7 +59,25 @@ function BlockProgress({ pct }: { pct: number }) {
 }
 
 export default function Home() {
-  const [sortKey, setSortKey] = useState<SortKey>("rank")
+  type SortField = "rank" | "year" | "completed"
+  type SortDir   = "asc" | "desc"
+  // Default directions per field (asc = rank 1 first / oldest first / played first)
+  const DEFAULT_DIR: Record<SortField, SortDir> = { rank: "asc", year: "asc", completed: "asc" }
+  const [sortField, setSortField] = useState<SortField>("rank")
+  const [sortDir,   setSortDir]   = useState<SortDir>("asc")
+
+  const handleSort = useCallback((field: SortField) => {
+    setSortField((prev) => {
+      if (prev === field) {
+        // Same field — toggle direction
+        setSortDir((d) => d === "asc" ? "desc" : "asc")
+        return field
+      }
+      // New field — use its default direction
+      setSortDir(DEFAULT_DIR[field])
+      return field
+    })
+  }, [])
   const [playedIds, setPlayedIds] = useState<Set<string>>(new Set())
   const [statsOpen, setStatsOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
@@ -105,8 +122,22 @@ export default function Home() {
   }, [])
 
   const filteredAndSorted = useMemo(() => {
-    return sortGames(ALL_GAMES, sortKey)
-  }, [sortKey])
+    const games = [...ALL_GAMES]
+    if (sortField === "rank") {
+      games.sort((a, b) => sortDir === "asc" ? a.rank - b.rank : b.rank - a.rank)
+    } else if (sortField === "year") {
+      games.sort((a, b) => sortDir === "asc" ? a.year - b.year || a.rank - b.rank : b.year - a.year || a.rank - b.rank)
+    } else if (sortField === "completed") {
+      // asc = played first, desc = unplayed first
+      games.sort((a, b) => {
+        const ap = playedIds.has(a.id) ? 1 : 0
+        const bp = playedIds.has(b.id) ? 1 : 0
+        const playedDiff = sortDir === "asc" ? bp - ap : ap - bp
+        return playedDiff || a.rank - b.rank
+      })
+    }
+    return games
+  }, [sortField, sortDir, playedIds])
 
   // Only games the user has marked as played, in rank order
   const playedGames = useMemo(() =>
@@ -441,6 +472,51 @@ export default function Home() {
         </div>
       </div>
 
+      {/* ── Sort bar ────────────────────────────────────────── */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+        padding: "8px 24px",
+        borderBottom: "1px solid #1a1a40",
+        background: "rgba(7,7,26,0.8)",
+      }}>
+        <span style={{
+          fontFamily: "var(--font-vt323), monospace",
+          fontSize: "11px",
+          color: "#3a3a60",
+          letterSpacing: "0.12em",
+          marginRight: "6px",
+        }}>
+          SORT:
+        </span>
+        {(["rank", "year", "completed"] as const).map((field) => {
+          const active = sortField === field
+          const labels: Record<typeof field, string> = { rank: "RANK", year: "YEAR", completed: "COMPLETED" }
+          // Arrow: for rank/year, ↑ = asc (low number first); for completed, ↑ = played first
+          const arrow = active ? (sortDir === "asc" ? " ↑" : " ↓") : ""
+          return (
+            <button
+              key={field}
+              onClick={() => handleSort(field)}
+              style={{
+                fontFamily: "var(--font-vt323), monospace",
+                fontSize: "14px",
+                letterSpacing: "0.08em",
+                padding: "4px 12px",
+                cursor: "pointer",
+                border: active ? "1px solid rgba(0,224,150,0.5)" : "1px solid #1a1a40",
+                background: active ? "rgba(0,224,150,0.08)" : "transparent",
+                color: active ? "#00e096" : "#4a4a80",
+                transition: "all 0.15s ease",
+              }}
+            >
+              {labels[field]}{arrow}
+            </button>
+          )
+        })}
+      </div>
+
       {/* ── Game grid ───────────────────────────────────────── */}
       <div style={{ padding: "28px 24px 60px" }}>
         <div
@@ -662,6 +738,7 @@ export default function Home() {
             padding: "16px 20px",
             width: "min(760px, calc(100vw - 32px))",
             boxShadow: "0 12px 48px rgba(0,0,0,0.9)",
+            overflow: "hidden",
           }}
         >
           <div style={{

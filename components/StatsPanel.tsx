@@ -7,17 +7,73 @@ interface Props {
   playedIds: Set<string>
 }
 
+const VT: React.CSSProperties = { fontFamily: "var(--font-vt323), monospace" }
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      ...VT,
+      fontSize: "11px",
+      color: "#5a5a90",
+      letterSpacing: "0.12em",
+      marginBottom: "10px",
+    }}>
+      {children}
+    </div>
+  )
+}
+
+function StatRow({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "6px" }}>
+      <span style={{ ...VT, fontSize: "12px", color: "#5a5a90", letterSpacing: "0.08em" }}>{label}</span>
+      <span style={{ ...VT, fontSize: "15px", color: "#c8c4e0", letterSpacing: "0.04em" }}>{value}</span>
+    </div>
+  )
+}
+
+function BarRow({ label, played, total }: { label: string; played: number; total: number }) {
+  const pct = total > 0 ? (played / total) * 100 : 0
+  return (
+    <div style={{ marginBottom: "8px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
+        <span style={{ ...VT, fontSize: "12px", color: "#c8c4e0", letterSpacing: "0.04em" }}>{label}</span>
+        <span style={{ ...VT, fontSize: "12px", color: "#5a5a90" }}>{played}/{total}</span>
+      </div>
+      <div style={{ height: "4px", background: "#1a1a40", borderRadius: 2, overflow: "hidden" }}>
+        <div style={{
+          height: "100%",
+          width: `${pct}%`,
+          background: "#00e096",
+          borderRadius: 2,
+          transition: "width 0.4s ease",
+        }} />
+      </div>
+    </div>
+  )
+}
+
 export default function StatsPanel({ games, playedIds }: Props) {
   const played = games.filter((g) => playedIds.has(g.id))
+  const playedCount = played.length
 
-  const byDecade = games.reduce((acc, g) => {
-    const decade = `${Math.floor(g.year / 10) * 10}s`
-    if (!acc[decade]) acc[decade] = { total: 0, played: 0 }
-    acc[decade].total++
-    if (playedIds.has(g.id)) acc[decade].played++
+  // ── Year dot chart data ──────────────────────────────────
+  const allYears = games.map((g) => g.year)
+  const minYear = Math.min(...allYears)
+  const maxYear = Math.max(...allYears)
+  const yearRange = Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i)
+
+  const playedByYear = played.reduce((acc, g) => {
+    acc[g.year] = (acc[g.year] || 0) + 1
     return acc
-  }, {} as Record<string, { total: number; played: number }>)
+  }, {} as Record<number, number>)
 
+  const maxStack = Math.max(...yearRange.map((y) => playedByYear[y] || 0), 1)
+  const DOT = 6        // dot diameter px
+  const DOT_GAP = 2    // vertical gap between dots px
+  const chartH = Math.max(64, maxStack * (DOT + DOT_GAP) + 4)
+
+  // ── By Platform ──────────────────────────────────────────
   const byPlatform = games.reduce((acc, g) => {
     if (!acc[g.platform]) acc[g.platform] = { total: 0, played: 0 }
     acc[g.platform].total++
@@ -25,44 +81,170 @@ export default function StatsPanel({ games, playedIds }: Props) {
     return acc
   }, {} as Record<string, { total: number; played: number }>)
 
+  const sortedPlatforms = Object.entries(byPlatform)
+    .sort(([, a], [, b]) => b.total - a.total)
+
+  // ── Quick stats ──────────────────────────────────────────
   const topUnplayed = games.filter((g) => !playedIds.has(g.id)).slice(0, 5)
 
+  const avgYear = playedCount > 0
+    ? Math.round(played.reduce((s, g) => s + g.year, 0) / playedCount)
+    : null
+
+  const avgScore = playedCount > 0
+    ? Math.round(played.reduce((s, g) => s + g.metacriticScore, 0) / playedCount)
+    : null
+
+  const oldest = playedCount > 0
+    ? played.reduce((a, b) => a.year < b.year ? a : b)
+    : null
+
+  const newest = playedCount > 0
+    ? played.reduce((a, b) => a.year > b.year ? a : b)
+    : null
+
+  const highestPlayed = playedCount > 0
+    ? played.reduce((a, b) => a.metacriticScore > b.metacriticScore ? a : b)
+    : null
+
+  const divider = (
+    <div style={{ borderTop: "1px solid #1a1a40", margin: "16px 0" }} />
+  )
+
   return (
-    <div className="space-y-6 text-sm">
-      <div>
-        <p className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground">By Decade</p>
-        <div className="space-y-2">
-          {Object.entries(byDecade).sort(([a], [b]) => a.localeCompare(b)).map(([decade, { total, played }]) => (
-            <div key={decade}>
-              <div className="flex justify-between text-xs mb-1">
-                <span>{decade}</span>
-                <span className="text-muted-foreground">{played}/{total}</span>
+    <div style={{ ...VT, color: "#c8c4e0" }}>
+
+      {/* ── GAMES BY YEAR dot chart ──────────────────────── */}
+      <SectionLabel>GAMES BY YEAR</SectionLabel>
+
+      {/* Chart area */}
+      <div style={{ position: "relative", marginBottom: "4px" }}>
+        {/* Dot columns */}
+        <div style={{
+          display: "flex",
+          alignItems: "flex-end",
+          height: chartH,
+          gap: 0,
+        }}>
+          {yearRange.map((year) => {
+            const count = playedByYear[year] || 0
+            return (
+              <div
+                key={year}
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  height: "100%",
+                  gap: DOT_GAP,
+                  paddingBottom: 0,
+                }}
+                title={count > 0 ? `${year}: ${count} game${count > 1 ? "s" : ""}` : year.toString()}
+              >
+                {Array.from({ length: count }, (_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: DOT,
+                      height: DOT,
+                      borderRadius: "50%",
+                      background: "#00e096",
+                      boxShadow: "0 0 4px rgba(0,224,150,0.6)",
+                      flexShrink: 0,
+                    }}
+                  />
+                ))}
               </div>
-              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-emerald-500 rounded-full transition-all"
-                  style={{ width: `${(played / total) * 100}%` }}
-                />
+            )
+          })}
+        </div>
+
+        {/* Axis line */}
+        <div style={{ height: 1, background: "#2a2a50", margin: "4px 0 0" }} />
+
+        {/* Year ticks + labels */}
+        <div style={{ display: "flex", alignItems: "flex-start", position: "relative", height: 22 }}>
+          {yearRange.map((year) => {
+            const showLabel = year % 5 === 0
+            return (
+              <div
+                key={year}
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  overflow: "visible",
+                }}
+              >
+                {/* Tick */}
+                <div style={{
+                  width: 1,
+                  height: showLabel ? 5 : 3,
+                  background: showLabel ? "#3a3a70" : "#1e1e40",
+                  marginBottom: 1,
+                }} />
+                {/* Label every 5 years */}
+                {showLabel && (
+                  <div style={{
+                    ...VT,
+                    fontSize: "9px",
+                    color: "#3a3a70",
+                    letterSpacing: 0,
+                    whiteSpace: "nowrap",
+                    lineHeight: 1,
+                  }}>
+                    {year}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
-      <div>
-        <p className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground">Top Unplayed</p>
-        <div className="space-y-1.5">
-          {topUnplayed.map((g) => (
-            <div key={g.id} className="flex items-center justify-between gap-2">
-              <span className="text-xs truncate">{g.title}</span>
-              <span className="text-xs text-emerald-400 font-bold shrink-0">{g.metacriticScore}</span>
-            </div>
-          ))}
-          {topUnplayed.length === 0 && (
-            <p className="text-xs text-muted-foreground">You've played everything!</p>
-          )}
-        </div>
-      </div>
+      {divider}
+
+      {/* ── QUICK STATS ──────────────────────────────────── */}
+      <SectionLabel>QUICK STATS</SectionLabel>
+      {playedCount === 0 ? (
+        <div style={{ ...VT, fontSize: "12px", color: "#3a3a70" }}>Mark games as played to see stats.</div>
+      ) : (
+        <>
+          {avgYear    && <StatRow label="AVG RELEASE YEAR"   value={avgYear} />}
+          {avgScore   && <StatRow label="AVG METACRITIC"     value={avgScore} />}
+          {oldest     && <StatRow label="OLDEST PLAYED"      value={`${oldest.title.length > 18 ? oldest.title.slice(0,17) + "…" : oldest.title} (${oldest.year})`} />}
+          {newest     && <StatRow label="NEWEST PLAYED"      value={`${newest.title.length > 18 ? newest.title.slice(0,17) + "…" : newest.title} (${newest.year})`} />}
+          {highestPlayed && <StatRow label="TOP SCORE PLAYED" value={`${highestPlayed.title.length > 18 ? highestPlayed.title.slice(0,17) + "…" : highestPlayed.title} (${highestPlayed.metacriticScore})`} />}
+        </>
+      )}
+
+      {divider}
+
+      {/* ── BY CONSOLE ───────────────────────────────────── */}
+      <SectionLabel>BY CONSOLE</SectionLabel>
+      {sortedPlatforms.map(([platform, { total, played: p }]) => (
+        <BarRow key={platform} label={platform} played={p} total={total} />
+      ))}
+
+      {divider}
+
+      {/* ── TOP UNPLAYED ─────────────────────────────────── */}
+      <SectionLabel>TOP UNPLAYED</SectionLabel>
+      {topUnplayed.length === 0 ? (
+        <div style={{ ...VT, fontSize: "12px", color: "#3a3a70" }}>You&apos;ve played everything!</div>
+      ) : (
+        topUnplayed.map((g) => (
+          <div key={g.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "6px" }}>
+            <span style={{ ...VT, fontSize: "13px", color: "#c8c4e0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>
+              {g.title}
+            </span>
+            <span style={{ ...VT, fontSize: "14px", color: "#00e096", flexShrink: 0 }}>{g.metacriticScore}</span>
+          </div>
+        ))
+      )}
     </div>
   )
 }
