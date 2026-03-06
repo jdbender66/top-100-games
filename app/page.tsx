@@ -111,15 +111,31 @@ export default function Home() {
       if (!grid) return
 
       // Step 1: Pre-fetch all played game cover images as data URLs.
-      // This avoids CORS failures inside html-to-image, since data URLs
-      // are embedded in memory and have no origin restrictions.
+      // Mirrors GameCard's two-step fallback: static coverUrl first,
+      // then Wikipedia API (same /api/cover endpoint GameCard uses).
+      // Converting to data URLs avoids CORS failures inside html-to-image.
       const map: Record<string, string> = {}
       await Promise.allSettled(
         playedGames.map(async (game) => {
-          if (!game.coverUrl) return
-          const src = game.coverUrl.startsWith("/")
-            ? game.coverUrl
-            : `/api/proxy-image?url=${encodeURIComponent(game.coverUrl)}`
+          let coverUrl = game.coverUrl
+
+          // If no static URL, ask the same Wikipedia API GameCard uses
+          if (!coverUrl) {
+            try {
+              const searchTitle = game.wikiTitle ?? game.title
+              const r = await fetch(
+                `/api/cover?title=${encodeURIComponent(searchTitle)}&year=${game.year}`
+              )
+              const data = await r.json()
+              if (data.url) coverUrl = data.url
+            } catch { /* leave coverUrl empty */ }
+          }
+
+          if (!coverUrl) return
+
+          const src = coverUrl.startsWith("/")
+            ? coverUrl
+            : `/api/proxy-image?url=${encodeURIComponent(coverUrl)}`
           try {
             const res = await fetch(src)
             if (!res.ok) return
@@ -627,10 +643,10 @@ export default function Home() {
                   outline: "2px solid #00e096",
                 }}
               >
-                {exportImageMap[game.id] || game.coverUrl ? (
+                {exportImageMap[game.id] ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={exportImageMap[game.id] || proxyImageSrc(game.coverUrl)}
+                    src={exportImageMap[game.id]}
                     alt={game.title}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
