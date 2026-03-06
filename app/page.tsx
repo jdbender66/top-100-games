@@ -90,7 +90,13 @@ const filteredAndSorted = useMemo(() => {
       const { toPng } = await import("html-to-image")
       const grid = document.getElementById("export-grid")
       if (!grid) return
+      // Briefly make visible so html-to-image can render it
+      grid.style.opacity = "1"
+      grid.style.zIndex = "9999"
+      await new Promise((r) => setTimeout(r, 100)) // let browser paint
       const dataUrl = await toPng(grid, { backgroundColor: "#07071a", pixelRatio: 2 })
+      grid.style.opacity = "0"
+      grid.style.zIndex = "-1"
       const link = document.createElement("a")
       link.download = `metacritic-100-${playedCount}-played.png`
       link.href = dataUrl
