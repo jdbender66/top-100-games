@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect, useCallback } from "react"
-import { BarChart2, Download } from "lucide-react"
+import { BarChart2, Download, X } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import GameCard from "@/components/GameCard"
 import StatsPanel from "@/components/StatsPanel"
@@ -27,6 +27,13 @@ const TIERS = [
 
 function getTier(count: number) {
   return TIERS.find((t) => count >= t.min)!
+}
+
+// Returns a proxied URL for external images to avoid CORS issues during export
+function proxyImageSrc(url: string): string {
+  if (!url) return ""
+  if (url.startsWith("/")) return url // local file, no proxy needed
+  return `/api/proxy-image?url=${encodeURIComponent(url)}`
 }
 
 // Progress bar using block characters for retro feel
@@ -56,6 +63,8 @@ export default function Home() {
   const [playedIds, setPlayedIds] = useState<Set<string>>(new Set())
   const [statsOpen, setStatsOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [exportModalOpen, setExportModalOpen] = useState(false)
+  const [exportDataUrl, setExportDataUrl] = useState<string>("")
 
   useEffect(() => {
     try {
@@ -76,9 +85,15 @@ export default function Home() {
     })
   }, [])
 
-const filteredAndSorted = useMemo(() => {
+  const filteredAndSorted = useMemo(() => {
     return sortGames(ALL_GAMES, sortKey)
   }, [sortKey])
+
+  // Only games the user has marked as played, in rank order
+  const playedGames = useMemo(() =>
+    ALL_GAMES.filter((g) => playedIds.has(g.id)),
+    [playedIds]
+  )
 
   const playedCount = playedIds.size
   const pct = Math.round((playedCount / 100) * 100)
@@ -90,23 +105,57 @@ const filteredAndSorted = useMemo(() => {
       const { toPng } = await import("html-to-image")
       const grid = document.getElementById("export-grid")
       if (!grid) return
+
       // Briefly make visible so html-to-image can render it
       grid.style.opacity = "1"
       grid.style.zIndex = "9999"
-      await new Promise((r) => setTimeout(r, 100)) // let browser paint
-      const dataUrl = await toPng(grid, { backgroundColor: "#07071a", pixelRatio: 2 })
+      await new Promise((r) => setTimeout(r, 200)) // let browser paint + images load
+
+      const dataUrl = await toPng(grid, {
+        backgroundColor: "#07071a",
+        pixelRatio: 2,
+      })
+
       grid.style.opacity = "0"
       grid.style.zIndex = "-1"
-      const link = document.createElement("a")
-      link.download = `metacritic-100-${playedCount}-played.png`
-      link.href = dataUrl
-      link.click()
+
+      setExportDataUrl(dataUrl)
+      setExportModalOpen(true)
     } catch (e) {
       console.error(e)
     } finally {
       setIsExporting(false)
     }
   }, [playedCount])
+
+  const handleDownload = useCallback(() => {
+    const link = document.createElement("a")
+    link.download = `metacritic-top100-${playedCount}-played.png`
+    link.href = exportDataUrl
+    link.click()
+  }, [exportDataUrl, playedCount])
+
+  const handleShareToX = useCallback(async () => {
+    const text = `I've played ${playedCount}/100 of the Metacritic Top 100 games!\nMy rank: ${currentTier.label} 🎮\n\n#Metacritic #Gaming #Top100Games`
+    // Try Web Share API with image file (works on mobile)
+    if (typeof navigator !== "undefined" && navigator.canShare) {
+      try {
+        const res = await fetch(exportDataUrl)
+        const blob = await res.blob()
+        const file = new File([blob], "metacritic-top100.png", { type: "image/png" })
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], text })
+          return
+        }
+      } catch {}
+    }
+    // Fallback: open X intent with text
+    const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`
+    window.open(tweetUrl, "_blank")
+  }, [exportDataUrl, playedCount, currentTier.label])
+
+  // Number of columns in the export grid (max 10)
+  const exportCols = Math.min(Math.max(playedCount, 1), 10)
 
   return (
     <div style={{ minHeight: "100vh", background: "#07071a" }}>
@@ -227,7 +276,7 @@ const filteredAndSorted = useMemo(() => {
                   fontFamily: "var(--font-vt323), monospace",
                   fontSize: "16px",
                   padding: "5px 14px",
-                  cursor: "pointer",
+                  cursor: isExporting ? "default" : "pointer",
                   letterSpacing: "0.06em",
                   display: "flex",
                   alignItems: "center",
@@ -237,7 +286,7 @@ const filteredAndSorted = useMemo(() => {
                 }}
               >
                 <Download style={{ width: 14, height: 14 }} />
-                {isExporting ? "EXPORTING..." : "SHARE"}
+                {isExporting ? "GENERATING..." : "SHARE"}
               </button>
               <button
                 onClick={() => {
@@ -317,6 +366,123 @@ const filteredAndSorted = useMemo(() => {
         </SheetContent>
       </Sheet>
 
+      {/* ── Export preview modal ─────────────────────────────── */}
+      {exportModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.85)",
+            zIndex: 10000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setExportModalOpen(false) }}
+        >
+          <div
+            style={{
+              background: "#09091e",
+              border: "1px solid #1e1e4a",
+              padding: "24px",
+              maxWidth: "700px",
+              width: "100%",
+              position: "relative",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+            }}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setExportModalOpen(false)}
+              style={{
+                position: "absolute",
+                top: "12px",
+                right: "12px",
+                background: "none",
+                border: "none",
+                color: "#5a5a90",
+                cursor: "pointer",
+                padding: "4px",
+              }}
+            >
+              <X style={{ width: 18, height: 18 }} />
+            </button>
+
+            <div style={{
+              fontFamily: "var(--font-vt323), monospace",
+              fontSize: "20px",
+              color: "#c8c4e0",
+              letterSpacing: "0.08em",
+            }}>
+              SHARE YOUR PROGRESS
+            </div>
+
+            {/* Image preview */}
+            <div style={{ overflowY: "auto", flex: 1 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={exportDataUrl}
+                alt="Export preview"
+                style={{ width: "100%", display: "block", border: "1px solid #1a1a44" }}
+              />
+            </div>
+
+            {/* Action buttons */}
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={handleDownload}
+                style={{
+                  flex: 1,
+                  background: "#00e096",
+                  border: "none",
+                  color: "#07071a",
+                  fontFamily: "var(--font-vt323), monospace",
+                  fontSize: "18px",
+                  padding: "10px 0",
+                  cursor: "pointer",
+                  letterSpacing: "0.08em",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                }}
+              >
+                <Download style={{ width: 16, height: 16 }} />
+                DOWNLOAD
+              </button>
+              <button
+                onClick={handleShareToX}
+                style={{
+                  flex: 1,
+                  background: "#000",
+                  border: "1px solid #333",
+                  color: "#fff",
+                  fontFamily: "var(--font-vt323), monospace",
+                  fontSize: "18px",
+                  padding: "10px 0",
+                  cursor: "pointer",
+                  letterSpacing: "0.08em",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                }}
+              >
+                {/* X logo */}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+                SHARE TO X
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Hidden export grid ──────────────────────────────── */}
       <div
         id="export-grid"
@@ -325,7 +491,7 @@ const filteredAndSorted = useMemo(() => {
           left: 0,
           top: 0,
           width: 1200,
-          padding: 32,
+          padding: "40px 40px 48px",
           background: "#07071a",
           opacity: 0,
           pointerEvents: "none",
@@ -333,84 +499,103 @@ const filteredAndSorted = useMemo(() => {
         }}
         aria-hidden
       >
-        {/* Export header with tier badge */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", marginBottom: 24 }}>
+        {/* Line 1: title, centered, alone */}
+        <div style={{
+          textAlign: "center",
+          fontFamily: "var(--font-vt323), monospace",
+          fontSize: 36,
+          color: "#c8c4e0",
+          letterSpacing: "0.08em",
+          marginBottom: 20,
+        }}>
+          I&apos;VE PLAYED {playedCount}/100 METACRITIC TOP 100 GAMES
+        </div>
+
+        {/* Line 2: badge + tier name, centered */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "14px",
+          marginBottom: 32,
+        }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={currentTier.badge}
             alt={currentTier.label}
-            crossOrigin="anonymous"
-            style={{ height: "64px", width: "auto", objectFit: "contain" }}
+            style={{ height: "72px", width: "auto", objectFit: "contain" }}
           />
-          <div>
-            <h2
-              style={{
-                color: "#c8c4e0",
-                fontSize: 28,
-                fontFamily: "var(--font-vt323), monospace",
-                letterSpacing: "0.08em",
-                margin: 0,
-              }}
-            >
-              I&apos;VE PLAYED {playedCount}/100 METACRITIC TOP 100 GAMES
-            </h2>
-            <div style={{
-              color: "#00e096",
-              fontSize: 20,
-              fontFamily: "var(--font-vt323), monospace",
-              letterSpacing: "0.06em",
-              marginTop: 4,
-            }}>
-              RANK: {currentTier.label}
-            </div>
+          <div style={{
+            color: "#00e096",
+            fontSize: 28,
+            fontFamily: "var(--font-vt323), monospace",
+            letterSpacing: "0.06em",
+          }}>
+            {currentTier.label}
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 8 }}>
-          {ALL_GAMES.map((game) => (
-            <div
-              key={game.id}
-              style={{
-                position: "relative",
-                aspectRatio: "3/4",
-                overflow: "hidden",
-                opacity: playedIds.has(game.id) ? 1 : 0.35,
-                outline: playedIds.has(game.id) ? "2px solid #00e096" : "none",
-              }}
-            >
-              {game.coverUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={game.coverUrl}
-                  alt={game.title}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  crossOrigin="anonymous"
-                />
-              ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    background: "#0d0d28",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <span
+
+        {/* Played games grid — only games the user has completed */}
+        {playedGames.length > 0 && (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${exportCols}, 1fr)`,
+            gap: 8,
+          }}>
+            {playedGames.map((game) => (
+              <div
+                key={game.id}
+                style={{
+                  position: "relative",
+                  aspectRatio: "3/4",
+                  overflow: "hidden",
+                  outline: "2px solid #00e096",
+                }}
+              >
+                {game.coverUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={proxyImageSrc(game.coverUrl)}
+                    alt={game.title}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <div
                     style={{
-                      fontSize: 8,
-                      color: "#4040800",
+                      width: "100%",
+                      height: "100%",
+                      background: "#0d0d28",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span style={{
+                      fontSize: 10,
+                      color: "#404080",
                       textAlign: "center",
                       padding: 4,
                       fontFamily: "monospace",
-                    }}
-                  >
-                    {game.title}
-                  </span>
-                </div>
-              )}
-            </div>
-          ))}
+                    }}>
+                      {game.title}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Footer watermark */}
+        <div style={{
+          marginTop: 20,
+          textAlign: "center",
+          fontFamily: "monospace",
+          fontSize: 12,
+          color: "#2a2a50",
+          letterSpacing: "0.06em",
+        }}>
+          metacritic-top100.vercel.app
         </div>
       </div>
     </div>
