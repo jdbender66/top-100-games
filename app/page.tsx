@@ -87,13 +87,13 @@ const filteredAndSorted = useMemo(() => {
   const handleExport = useCallback(async () => {
     setIsExporting(true)
     try {
-      const html2canvas = (await import("html2canvas")).default
+      const { toPng } = await import("html-to-image")
       const grid = document.getElementById("export-grid")
       if (!grid) return
-      const canvas = await html2canvas(grid, { backgroundColor: "#07071a", scale: 2, useCORS: true })
+      const dataUrl = await toPng(grid, { backgroundColor: "#07071a", pixelRatio: 2 })
       const link = document.createElement("a")
       link.download = `metacritic-100-${playedCount}-played.png`
-      link.href = canvas.toDataURL("image/png")
+      link.href = dataUrl
       link.click()
     } catch (e) {
       console.error(e)
