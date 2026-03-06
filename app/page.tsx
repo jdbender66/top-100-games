@@ -69,6 +69,7 @@ export default function Home() {
   const [exportImageMap, setExportImageMap] = useState<Record<string, string>>({})
   // Clipboard copy status for X share UX hint
   const [clipboardCopied, setClipboardCopied] = useState(false)
+  const [tierTooltipOpen, setTierTooltipOpen] = useState(false)
 
   useEffect(() => {
     try {
@@ -291,7 +292,7 @@ export default function Home() {
               </div>
 
               {/* Tier badge */}
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "10px" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={currentTier.badge}
@@ -302,17 +303,125 @@ export default function Home() {
                   <div style={{ fontSize: "11px", color: "#5a5a90", letterSpacing: "0.1em", marginBottom: "2px" }}>
                     CURRENT RANK
                   </div>
-                  <div style={{
-                    fontSize: "18px",
-                    color: "#c8c4e0",
-                    fontFamily: "var(--font-vt323), monospace",
-                    letterSpacing: "0.04em",
-                    maxWidth: "180px",
-                    lineHeight: 1.2,
-                  }}>
-                    {currentTier.label}
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <div style={{
+                      fontSize: "18px",
+                      color: "#c8c4e0",
+                      fontFamily: "var(--font-vt323), monospace",
+                      letterSpacing: "0.04em",
+                      maxWidth: "180px",
+                      lineHeight: 1.2,
+                    }}>
+                      {currentTier.label}
+                    </div>
+                    {/* ? help icon */}
+                    <button
+                      onMouseEnter={() => setTierTooltipOpen(true)}
+                      onMouseLeave={() => setTierTooltipOpen(false)}
+                      onClick={() => setTierTooltipOpen((v) => !v)}
+                      style={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        border: "1px solid #3a3a70",
+                        background: "rgba(13,13,42,0.85)",
+                        color: "#5a5a90",
+                        fontFamily: "var(--font-vt323), monospace",
+                        fontSize: "13px",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                        lineHeight: 1,
+                        padding: 0,
+                      }}
+                      aria-label="View all tiers"
+                    >
+                      ?
+                    </button>
                   </div>
                 </div>
+
+                {/* Tier info tooltip */}
+                {tierTooltipOpen && (
+                  <div
+                    onMouseEnter={() => setTierTooltipOpen(true)}
+                    onMouseLeave={() => setTierTooltipOpen(false)}
+                    style={{
+                      position: "absolute",
+                      top: "calc(100% + 10px)",
+                      left: 0,
+                      zIndex: 500,
+                      background: "rgba(7,7,26,0.96)",
+                      border: "1px solid #1e1e4a",
+                      backdropFilter: "blur(8px)",
+                      padding: "14px 16px",
+                      width: 260,
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.8)",
+                    }}
+                  >
+                    <div style={{
+                      fontFamily: "var(--font-vt323), monospace",
+                      fontSize: "13px",
+                      color: "#5a5a90",
+                      letterSpacing: "0.1em",
+                      marginBottom: "10px",
+                    }}>
+                      ALL TIERS
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {[...TIERS].reverse().map((tier) => {
+                        const isCurrentTier = tier.label === currentTier.label
+                        const unlockLabel = tier.min === 100 ? "100 games" : tier.min === 0 ? "0 games" : `${tier.min}+ games`
+                        return (
+                          <div
+                            key={tier.label}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              padding: "5px 7px",
+                              background: isCurrentTier ? "rgba(0,224,150,0.1)" : "transparent",
+                              border: isCurrentTier ? "1px solid rgba(0,224,150,0.4)" : "1px solid transparent",
+                            }}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={tier.badge}
+                              alt={tier.label}
+                              style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0 }}
+                            />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{
+                                fontFamily: "var(--font-vt323), monospace",
+                                fontSize: "14px",
+                                color: isCurrentTier ? "#00e096" : "#c8c4e0",
+                                lineHeight: 1.2,
+                                letterSpacing: "0.03em",
+                              }}>
+                                {tier.label}
+                              </div>
+                              <div style={{
+                                fontFamily: "var(--font-vt323), monospace",
+                                fontSize: "11px",
+                                color: isCurrentTier ? "rgba(0,224,150,0.6)" : "#3a3a70",
+                                letterSpacing: "0.06em",
+                              }}>
+                                {unlockLabel}
+                              </div>
+                            </div>
+                            {isCurrentTier && (
+                              <span style={{ fontSize: "11px", color: "#00e096", fontFamily: "var(--font-vt323), monospace", letterSpacing: "0.05em" }}>
+                                ◀ YOU
+                              </span>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
