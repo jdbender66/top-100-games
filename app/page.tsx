@@ -88,16 +88,15 @@ export default function Home() {
   // Clipboard copy status for X share UX hint
   const [clipboardCopied, setClipboardCopied] = useState(false)
   const [tierTooltipOpen, setTierTooltipOpen] = useState(false)
-  const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number } | null>(null)
+  const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number; width: number } | null>(null)
   const tierBtnRef = useRef<HTMLButtonElement>(null)
 
   const openTierTooltip = useCallback(() => {
     if (tierBtnRef.current) {
       const rect = tierBtnRef.current.getBoundingClientRect()
-      // Anchor left to the button, clamp so it doesn't overflow right edge
-      const tooltipWidth = Math.min(760, window.innerWidth - 32)
-      const left = Math.min(rect.left, window.innerWidth - tooltipWidth - 16)
-      setTooltipPos({ top: rect.bottom + 8, left: Math.max(8, left) })
+      const w = Math.min(760, window.innerWidth - 32)
+      const left = Math.min(rect.left, window.innerWidth - w - 16)
+      setTooltipPos({ top: rect.bottom + 8, left: Math.max(8, left), width: w })
     }
     setTierTooltipOpen(true)
   }, [])
@@ -277,6 +276,50 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#07071a" }}>
+
+      {/* ── Sort bar ────────────────────────────────────────── */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+        padding: "7px 24px",
+        borderBottom: "1px solid #12122e",
+        background: "#04040f",
+      }}>
+        <span style={{
+          fontFamily: "var(--font-vt323), monospace",
+          fontSize: "11px",
+          color: "#2e2e55",
+          letterSpacing: "0.14em",
+          marginRight: "8px",
+        }}>
+          SORT
+        </span>
+        {(["rank", "year", "completed"] as const).map((field) => {
+          const active = sortField === field
+          const labels: Record<typeof field, string> = { rank: "RANK", year: "YEAR", completed: "COMPLETED" }
+          const arrow = active ? (sortDir === "asc" ? " ↑" : " ↓") : ""
+          return (
+            <button
+              key={field}
+              onClick={() => handleSort(field)}
+              style={{
+                fontFamily: "var(--font-vt323), monospace",
+                fontSize: "13px",
+                letterSpacing: "0.1em",
+                padding: "3px 12px",
+                cursor: "pointer",
+                border: active ? "1px solid rgba(0,224,150,0.45)" : "1px solid #18183a",
+                background: active ? "rgba(0,224,150,0.07)" : "transparent",
+                color: active ? "#00e096" : "#383870",
+                transition: "color 0.12s, border-color 0.12s, background 0.12s",
+              }}
+            >
+              {labels[field]}{arrow}
+            </button>
+          )
+        })}
+      </div>
 
       {/* ── Hero / status panel ─────────────────────────────── */}
       <div
@@ -472,51 +515,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── Sort bar ────────────────────────────────────────── */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "4px",
-        padding: "8px 24px",
-        borderBottom: "1px solid #1a1a40",
-        background: "rgba(7,7,26,0.8)",
-      }}>
-        <span style={{
-          fontFamily: "var(--font-vt323), monospace",
-          fontSize: "11px",
-          color: "#3a3a60",
-          letterSpacing: "0.12em",
-          marginRight: "6px",
-        }}>
-          SORT:
-        </span>
-        {(["rank", "year", "completed"] as const).map((field) => {
-          const active = sortField === field
-          const labels: Record<typeof field, string> = { rank: "RANK", year: "YEAR", completed: "COMPLETED" }
-          // Arrow: for rank/year, ↑ = asc (low number first); for completed, ↑ = played first
-          const arrow = active ? (sortDir === "asc" ? " ↑" : " ↓") : ""
-          return (
-            <button
-              key={field}
-              onClick={() => handleSort(field)}
-              style={{
-                fontFamily: "var(--font-vt323), monospace",
-                fontSize: "14px",
-                letterSpacing: "0.08em",
-                padding: "4px 12px",
-                cursor: "pointer",
-                border: active ? "1px solid rgba(0,224,150,0.5)" : "1px solid #1a1a40",
-                background: active ? "rgba(0,224,150,0.08)" : "transparent",
-                color: active ? "#00e096" : "#4a4a80",
-                transition: "all 0.15s ease",
-              }}
-            >
-              {labels[field]}{arrow}
-            </button>
-          )
-        })}
-      </div>
-
       {/* ── Game grid ───────────────────────────────────────── */}
       <div style={{ padding: "28px 24px 60px" }}>
         <div
@@ -541,7 +539,7 @@ export default function Home() {
       <Sheet open={statsOpen} onOpenChange={setStatsOpen}>
         <SheetContent
           side="right"
-          className="w-80 p-4 overflow-y-auto"
+          className="w-[460px] p-6 overflow-y-auto"
           style={{ background: "#09091e", borderLeft: "2px solid #1a1a44" }}
         >
           <SheetHeader className="mb-4">
@@ -736,9 +734,9 @@ export default function Home() {
             border: "1px solid #1e1e4a",
             backdropFilter: "blur(10px)",
             padding: "16px 20px",
-            width: "min(760px, calc(100vw - 32px))",
+            width: tooltipPos.width,
+            boxSizing: "border-box",
             boxShadow: "0 12px 48px rgba(0,0,0,0.9)",
-            overflow: "hidden",
           }}
         >
           <div style={{
@@ -767,6 +765,8 @@ export default function Home() {
                     alignItems: "center",
                     gap: "8px",
                     padding: "8px 10px",
+                    minWidth: 0,
+                    overflow: "hidden",
                     background: isCurrentTier ? "rgba(0,224,150,0.1)" : "rgba(255,255,255,0.02)",
                     border: isCurrentTier ? "1px solid rgba(0,224,150,0.45)" : "1px solid rgba(255,255,255,0.05)",
                   }}

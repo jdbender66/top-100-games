@@ -13,10 +13,10 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       ...VT,
-      fontSize: "11px",
+      fontSize: "14px",
       color: "#5a5a90",
-      letterSpacing: "0.12em",
-      marginBottom: "10px",
+      letterSpacing: "0.14em",
+      marginBottom: "14px",
     }}>
       {children}
     </div>
@@ -25,9 +25,9 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function StatRow({ label, value }: { label: string; value: string | number }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "6px" }}>
-      <span style={{ ...VT, fontSize: "12px", color: "#5a5a90", letterSpacing: "0.08em" }}>{label}</span>
-      <span style={{ ...VT, fontSize: "15px", color: "#c8c4e0", letterSpacing: "0.04em" }}>{value}</span>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "10px" }}>
+      <span style={{ ...VT, fontSize: "15px", color: "#5a5a90", letterSpacing: "0.08em" }}>{label}</span>
+      <span style={{ ...VT, fontSize: "19px", color: "#c8c4e0", letterSpacing: "0.04em", marginLeft: 12 }}>{value}</span>
     </div>
   )
 }
@@ -35,17 +35,17 @@ function StatRow({ label, value }: { label: string; value: string | number }) {
 function BarRow({ label, played, total }: { label: string; played: number; total: number }) {
   const pct = total > 0 ? (played / total) * 100 : 0
   return (
-    <div style={{ marginBottom: "8px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
-        <span style={{ ...VT, fontSize: "12px", color: "#c8c4e0", letterSpacing: "0.04em" }}>{label}</span>
-        <span style={{ ...VT, fontSize: "12px", color: "#5a5a90" }}>{played}/{total}</span>
+    <div style={{ marginBottom: "12px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+        <span style={{ ...VT, fontSize: "16px", color: "#c8c4e0", letterSpacing: "0.04em" }}>{label}</span>
+        <span style={{ ...VT, fontSize: "15px", color: "#5a5a90" }}>{played}/{total}</span>
       </div>
-      <div style={{ height: "4px", background: "#1a1a40", borderRadius: 2, overflow: "hidden" }}>
+      <div style={{ height: "6px", background: "#1a1a40", borderRadius: 3, overflow: "hidden" }}>
         <div style={{
           height: "100%",
           width: `${pct}%`,
           background: "#00e096",
-          borderRadius: 2,
+          borderRadius: 3,
           transition: "width 0.4s ease",
         }} />
       </div>
@@ -69,9 +69,9 @@ export default function StatsPanel({ games, playedIds }: Props) {
   }, {} as Record<number, number>)
 
   const maxStack = Math.max(...yearRange.map((y) => playedByYear[y] || 0), 1)
-  const DOT = 6        // dot diameter px
-  const DOT_GAP = 2    // vertical gap between dots px
-  const chartH = Math.max(64, maxStack * (DOT + DOT_GAP) + 4)
+  const DOT = 9        // dot diameter px
+  const DOT_GAP = 3    // vertical gap between dots px
+  const chartH = Math.max(80, maxStack * (DOT + DOT_GAP) + 6)
 
   // ── By Platform ──────────────────────────────────────────
   const byPlatform = games.reduce((acc, g) => {
@@ -107,8 +107,11 @@ export default function StatsPanel({ games, playedIds }: Props) {
     ? played.reduce((a, b) => a.metacriticScore > b.metacriticScore ? a : b)
     : null
 
+  // Truncate game titles to fit the wider panel
+  const trunc = (s: string, n = 22) => s.length > n ? s.slice(0, n - 1) + "…" : s
+
   const divider = (
-    <div style={{ borderTop: "1px solid #1a1a40", margin: "16px 0" }} />
+    <div style={{ borderTop: "1px solid #1a1a40", margin: "20px 0" }} />
   )
 
   return (
@@ -117,8 +120,7 @@ export default function StatsPanel({ games, playedIds }: Props) {
       {/* ── GAMES BY YEAR dot chart ──────────────────────── */}
       <SectionLabel>GAMES BY YEAR</SectionLabel>
 
-      {/* Chart area */}
-      <div style={{ position: "relative", marginBottom: "4px" }}>
+      <div style={{ position: "relative", marginBottom: "6px" }}>
         {/* Dot columns */}
         <div style={{
           display: "flex",
@@ -139,7 +141,6 @@ export default function StatsPanel({ games, playedIds }: Props) {
                   justifyContent: "flex-end",
                   height: "100%",
                   gap: DOT_GAP,
-                  paddingBottom: 0,
                 }}
                 title={count > 0 ? `${year}: ${count} game${count > 1 ? "s" : ""}` : year.toString()}
               >
@@ -151,7 +152,7 @@ export default function StatsPanel({ games, playedIds }: Props) {
                       height: DOT,
                       borderRadius: "50%",
                       background: "#00e096",
-                      boxShadow: "0 0 4px rgba(0,224,150,0.6)",
+                      boxShadow: "0 0 5px rgba(0,224,150,0.65)",
                       flexShrink: 0,
                     }}
                   />
@@ -162,10 +163,10 @@ export default function StatsPanel({ games, playedIds }: Props) {
         </div>
 
         {/* Axis line */}
-        <div style={{ height: 1, background: "#2a2a50", margin: "4px 0 0" }} />
+        <div style={{ height: 1, background: "#2a2a50", margin: "5px 0 0" }} />
 
         {/* Year ticks + labels */}
-        <div style={{ display: "flex", alignItems: "flex-start", position: "relative", height: 22 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", height: 28 }}>
           {yearRange.map((year) => {
             const showLabel = year % 5 === 0
             return (
@@ -179,19 +180,17 @@ export default function StatsPanel({ games, playedIds }: Props) {
                   overflow: "visible",
                 }}
               >
-                {/* Tick */}
                 <div style={{
                   width: 1,
-                  height: showLabel ? 5 : 3,
+                  height: showLabel ? 7 : 4,
                   background: showLabel ? "#3a3a70" : "#1e1e40",
-                  marginBottom: 1,
+                  marginBottom: 2,
                 }} />
-                {/* Label every 5 years */}
                 {showLabel && (
                   <div style={{
                     ...VT,
-                    fontSize: "9px",
-                    color: "#3a3a70",
+                    fontSize: "12px",
+                    color: "#4a4a80",
                     letterSpacing: 0,
                     whiteSpace: "nowrap",
                     lineHeight: 1,
@@ -210,14 +209,14 @@ export default function StatsPanel({ games, playedIds }: Props) {
       {/* ── QUICK STATS ──────────────────────────────────── */}
       <SectionLabel>QUICK STATS</SectionLabel>
       {playedCount === 0 ? (
-        <div style={{ ...VT, fontSize: "12px", color: "#3a3a70" }}>Mark games as played to see stats.</div>
+        <div style={{ ...VT, fontSize: "15px", color: "#3a3a70" }}>Mark games as played to see stats.</div>
       ) : (
         <>
-          {avgYear    && <StatRow label="AVG RELEASE YEAR"   value={avgYear} />}
-          {avgScore   && <StatRow label="AVG METACRITIC"     value={avgScore} />}
-          {oldest     && <StatRow label="OLDEST PLAYED"      value={`${oldest.title.length > 18 ? oldest.title.slice(0,17) + "…" : oldest.title} (${oldest.year})`} />}
-          {newest     && <StatRow label="NEWEST PLAYED"      value={`${newest.title.length > 18 ? newest.title.slice(0,17) + "…" : newest.title} (${newest.year})`} />}
-          {highestPlayed && <StatRow label="TOP SCORE PLAYED" value={`${highestPlayed.title.length > 18 ? highestPlayed.title.slice(0,17) + "…" : highestPlayed.title} (${highestPlayed.metacriticScore})`} />}
+          {avgYear    && <StatRow label="AVG RELEASE YEAR"  value={avgYear} />}
+          {avgScore   && <StatRow label="AVG METACRITIC"    value={avgScore} />}
+          {oldest     && <StatRow label="OLDEST PLAYED"     value={`${trunc(oldest.title)} (${oldest.year})`} />}
+          {newest     && <StatRow label="NEWEST PLAYED"     value={`${trunc(newest.title)} (${newest.year})`} />}
+          {highestPlayed && <StatRow label="TOP SCORE PLAYED" value={`${trunc(highestPlayed.title)} (${highestPlayed.metacriticScore})`} />}
         </>
       )}
 
@@ -234,14 +233,14 @@ export default function StatsPanel({ games, playedIds }: Props) {
       {/* ── TOP UNPLAYED ─────────────────────────────────── */}
       <SectionLabel>TOP UNPLAYED</SectionLabel>
       {topUnplayed.length === 0 ? (
-        <div style={{ ...VT, fontSize: "12px", color: "#3a3a70" }}>You&apos;ve played everything!</div>
+        <div style={{ ...VT, fontSize: "15px", color: "#3a3a70" }}>You&apos;ve played everything!</div>
       ) : (
         topUnplayed.map((g) => (
-          <div key={g.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "6px" }}>
-            <span style={{ ...VT, fontSize: "13px", color: "#c8c4e0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>
+          <div key={g.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "10px" }}>
+            <span style={{ ...VT, fontSize: "16px", color: "#c8c4e0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 12 }}>
               {g.title}
             </span>
-            <span style={{ ...VT, fontSize: "14px", color: "#00e096", flexShrink: 0 }}>{g.metacriticScore}</span>
+            <span style={{ ...VT, fontSize: "18px", color: "#00e096", flexShrink: 0 }}>{g.metacriticScore}</span>
           </div>
         ))
       )}
