@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useMemo, useEffect, useCallback } from "react"
+import { useState, useMemo, useEffect, useCallback, useRef } from "react"
+import { createPortal } from "react-dom"
 import { BarChart2, Download, X } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import GameCard from "@/components/GameCard"
@@ -70,6 +71,19 @@ export default function Home() {
   // Clipboard copy status for X share UX hint
   const [clipboardCopied, setClipboardCopied] = useState(false)
   const [tierTooltipOpen, setTierTooltipOpen] = useState(false)
+  const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number } | null>(null)
+  const tierBtnRef = useRef<HTMLButtonElement>(null)
+
+  const openTierTooltip = useCallback(() => {
+    if (tierBtnRef.current) {
+      const rect = tierBtnRef.current.getBoundingClientRect()
+      // Anchor left to the button, clamp so it doesn't overflow right edge
+      const tooltipWidth = Math.min(760, window.innerWidth - 32)
+      const left = Math.min(rect.left, window.innerWidth - tooltipWidth - 16)
+      setTooltipPos({ top: rect.bottom + 8, left: Math.max(8, left) })
+    }
+    setTierTooltipOpen(true)
+  }, [])
 
   useEffect(() => {
     try {
@@ -316,9 +330,10 @@ export default function Home() {
                     </div>
                     {/* ? help icon */}
                     <button
-                      onMouseEnter={() => setTierTooltipOpen(true)}
+                      ref={tierBtnRef}
+                      onMouseEnter={openTierTooltip}
                       onMouseLeave={() => setTierTooltipOpen(false)}
-                      onClick={() => setTierTooltipOpen((v) => !v)}
+                      onClick={() => tierTooltipOpen ? setTierTooltipOpen(false) : openTierTooltip()}
                       style={{
                         width: 18,
                         height: 18,
@@ -343,85 +358,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Tier info tooltip */}
-                {tierTooltipOpen && (
-                  <div
-                    onMouseEnter={() => setTierTooltipOpen(true)}
-                    onMouseLeave={() => setTierTooltipOpen(false)}
-                    style={{
-                      position: "absolute",
-                      top: "calc(100% + 10px)",
-                      left: 0,
-                      zIndex: 500,
-                      background: "rgba(7,7,26,0.96)",
-                      border: "1px solid #1e1e4a",
-                      backdropFilter: "blur(8px)",
-                      padding: "14px 16px",
-                      width: 260,
-                      boxShadow: "0 8px 32px rgba(0,0,0,0.8)",
-                    }}
-                  >
-                    <div style={{
-                      fontFamily: "var(--font-vt323), monospace",
-                      fontSize: "13px",
-                      color: "#5a5a90",
-                      letterSpacing: "0.1em",
-                      marginBottom: "10px",
-                    }}>
-                      ALL TIERS
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      {[...TIERS].reverse().map((tier) => {
-                        const isCurrentTier = tier.label === currentTier.label
-                        const unlockLabel = tier.min === 100 ? "100 games" : tier.min === 0 ? "0 games" : `${tier.min}+ games`
-                        return (
-                          <div
-                            key={tier.label}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              padding: "5px 7px",
-                              background: isCurrentTier ? "rgba(0,224,150,0.1)" : "transparent",
-                              border: isCurrentTier ? "1px solid rgba(0,224,150,0.4)" : "1px solid transparent",
-                            }}
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={tier.badge}
-                              alt={tier.label}
-                              style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0 }}
-                            />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{
-                                fontFamily: "var(--font-vt323), monospace",
-                                fontSize: "14px",
-                                color: isCurrentTier ? "#00e096" : "#c8c4e0",
-                                lineHeight: 1.2,
-                                letterSpacing: "0.03em",
-                              }}>
-                                {tier.label}
-                              </div>
-                              <div style={{
-                                fontFamily: "var(--font-vt323), monospace",
-                                fontSize: "11px",
-                                color: isCurrentTier ? "rgba(0,224,150,0.6)" : "#3a3a70",
-                                letterSpacing: "0.06em",
-                              }}>
-                                {unlockLabel}
-                              </div>
-                            </div>
-                            {isCurrentTier && (
-                              <span style={{ fontSize: "11px", color: "#00e096", fontFamily: "var(--font-vt323), monospace", letterSpacing: "0.05em" }}>
-                                ◀ YOU
-                              </span>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
+                {/* Tier tooltip is rendered via portal — see bottom of component */}
               </div>
             </div>
 
@@ -625,13 +562,21 @@ export default function Home() {
               SHARE YOUR PROGRESS
             </div>
 
-            {/* Image preview */}
-            <div style={{ overflowY: "auto", flex: 1 }}>
+            {/* Image preview — constrained so it never requires scrolling */}
+            <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={exportDataUrl}
                 alt="Export preview"
-                style={{ width: "100%", display: "block", border: "1px solid #1a1a44" }}
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "55vh",
+                  width: "auto",
+                  height: "auto",
+                  display: "block",
+                  border: "1px solid #1a1a44",
+                  objectFit: "contain",
+                }}
               />
             </div>
 
@@ -699,6 +644,90 @@ export default function Home() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Tier tooltip portal (fixed, above everything) ──── */}
+      {tierTooltipOpen && tooltipPos && typeof document !== "undefined" && createPortal(
+        <div
+          onMouseEnter={() => setTierTooltipOpen(true)}
+          onMouseLeave={() => setTierTooltipOpen(false)}
+          style={{
+            position: "fixed",
+            top: tooltipPos.top,
+            left: tooltipPos.left,
+            zIndex: 9000,
+            background: "rgba(7,7,26,0.97)",
+            border: "1px solid #1e1e4a",
+            backdropFilter: "blur(10px)",
+            padding: "16px 20px",
+            width: "min(760px, calc(100vw - 32px))",
+            boxShadow: "0 12px 48px rgba(0,0,0,0.9)",
+          }}
+        >
+          <div style={{
+            fontFamily: "var(--font-vt323), monospace",
+            fontSize: "13px",
+            color: "#5a5a90",
+            letterSpacing: "0.12em",
+            marginBottom: "12px",
+          }}>
+            ALL TIERS — HOVER TO EXPLORE
+          </div>
+          {/* 4-column landscape grid */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "8px",
+          }}>
+            {[...TIERS].reverse().map((tier) => {
+              const isCurrentTier = tier.label === currentTier.label
+              const unlockLabel = tier.min === 100 ? "100 games" : tier.min === 0 ? "Start" : `${tier.min}+ games`
+              return (
+                <div
+                  key={tier.label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "8px 10px",
+                    background: isCurrentTier ? "rgba(0,224,150,0.1)" : "rgba(255,255,255,0.02)",
+                    border: isCurrentTier ? "1px solid rgba(0,224,150,0.45)" : "1px solid rgba(255,255,255,0.05)",
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={tier.badge}
+                    alt={tier.label}
+                    style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0 }}
+                  />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{
+                      fontFamily: "var(--font-vt323), monospace",
+                      fontSize: "13px",
+                      color: isCurrentTier ? "#00e096" : "#c8c4e0",
+                      lineHeight: 1.25,
+                      letterSpacing: "0.02em",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}>
+                      {isCurrentTier ? `▶ ${tier.label}` : tier.label}
+                    </div>
+                    <div style={{
+                      fontFamily: "var(--font-vt323), monospace",
+                      fontSize: "11px",
+                      color: isCurrentTier ? "rgba(0,224,150,0.55)" : "#3a3a70",
+                      letterSpacing: "0.06em",
+                    }}>
+                      {unlockLabel}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>,
+        document.body
       )}
 
       {/* ── Hidden export grid (1200×1200 square) ───────────── */}
