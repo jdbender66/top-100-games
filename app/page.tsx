@@ -106,18 +106,27 @@ export default function Home() {
       const grid = document.getElementById("export-grid")
       if (!grid) return
 
-      // Briefly make visible so html-to-image can render it
-      grid.style.opacity = "1"
-      grid.style.zIndex = "9999"
-      await new Promise((r) => setTimeout(r, 200)) // let browser paint + images load
+      // Move off-screen but fully visible so html-to-image can render it
+      // Use visibility + position trick instead of opacity so React re-renders
+      // don't accidentally reset opacity mid-capture
+      grid.style.setProperty("visibility", "visible", "important")
+      grid.style.setProperty("opacity", "1", "important")
+      grid.style.setProperty("z-index", "9999", "important")
+      grid.style.setProperty("left", "0px", "important")
+      grid.style.setProperty("top", "0px", "important")
+
+      // Wait for images to paint
+      await new Promise((r) => setTimeout(r, 300))
 
       const dataUrl = await toPng(grid, {
         backgroundColor: "#07071a",
         pixelRatio: 2,
       })
 
-      grid.style.opacity = "0"
-      grid.style.zIndex = "-1"
+      // Hide again
+      grid.style.setProperty("opacity", "0", "important")
+      grid.style.setProperty("z-index", "-1", "important")
+      grid.style.setProperty("visibility", "hidden", "important")
 
       setExportDataUrl(dataUrl)
       setExportModalOpen(true)
@@ -379,7 +388,6 @@ export default function Home() {
             justifyContent: "center",
             padding: "24px",
           }}
-          onClick={(e) => { if (e.target === e.currentTarget) setExportModalOpen(false) }}
         >
           <div
             style={{
@@ -494,6 +502,7 @@ export default function Home() {
           padding: "40px 40px 48px",
           background: "#07071a",
           opacity: 0,
+          visibility: "hidden",
           pointerEvents: "none",
           zIndex: -1,
         }}
