@@ -316,11 +316,14 @@ const filteredAndSorted = useMemo(() => {
         id="export-grid"
         style={{
           position: "fixed",
-          left: -9999,
-          top: -9999,
+          left: 0,
+          top: 0,
           width: 1200,
           padding: 32,
           background: "#07071a",
+          opacity: 0,
+          pointerEvents: "none",
+          zIndex: -1,
         }}
         aria-hidden
       >
