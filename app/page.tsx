@@ -122,6 +122,25 @@ export default function Home() {
     setPlatformDropdownOpen(true)
   }, [])
 
+  // Keep dropdown anchored to the button while the page scrolls.
+  // Recalculates position on every scroll tick; closes if button leaves viewport.
+  useEffect(() => {
+    if (!platformDropdownOpen) return
+    const handleScroll = () => {
+      if (!platformBtnRef.current) { setPlatformDropdownOpen(false); return }
+      const rect = platformBtnRef.current.getBoundingClientRect()
+      if (rect.bottom < 0 || rect.top > window.innerHeight) {
+        // Button scrolled off-screen — close the dropdown
+        setPlatformDropdownOpen(false)
+      } else {
+        // Reposition to stay flush below the button
+        setPlatformDropdownPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+      }
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [platformDropdownOpen])
+
   const openTierTooltip = useCallback(() => {
     if (tierBtnRef.current) {
       const rect = tierBtnRef.current.getBoundingClientRect()
@@ -176,6 +195,19 @@ export default function Home() {
     ALL_GAMES.filter((g) => playedIds.has(g.id)),
     [playedIds]
   )
+
+  // Year chart data for the export image
+  const exportYearChart = useMemo(() => {
+    const minY = Math.min(...ALL_GAMES.map((g) => g.year))
+    const maxY = Math.max(...ALL_GAMES.map((g) => g.year))
+    const allYears = Array.from({ length: maxY - minY + 1 }, (_, i) => minY + i)
+    const totalByYear = new Map<number, number>()
+    const playedByYear = new Map<number, number>()
+    ALL_GAMES.forEach((g) => totalByYear.set(g.year, (totalByYear.get(g.year) ?? 0) + 1))
+    playedGames.forEach((g) => playedByYear.set(g.year, (playedByYear.get(g.year) ?? 0) + 1))
+    const maxCount = Math.max(...[...totalByYear.values()])
+    return { allYears, totalByYear, playedByYear, maxCount, minY, maxY }
+  }, [playedGames])
 
   const playedCount = playedIds.size
   const pct = Math.round((playedCount / 100) * 100)
@@ -271,12 +303,28 @@ export default function Home() {
     }
   }, [playedCount, playedGames])
 
-  const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async () => {
+    const filename = `metacritic-top100-${playedCount}-played.png`
+
+    // On mobile, use the Web Share API so iOS shows its native share sheet
+    // (gives the user "Save Image" / "Save to Camera Roll" option)
+    if (isMobile && typeof navigator.share === "function") {
+      try {
+        const blob = await fetch(exportDataUrl).then((r) => r.blob())
+        const file = new File([blob], filename, { type: "image/png" })
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file] })
+          return
+        }
+      } catch { /* share cancelled or unsupported — fall through */ }
+    }
+
+    // Desktop / fallback: anchor download
     const link = document.createElement("a")
-    link.download = `metacritic-top100-${playedCount}-played.png`
+    link.download = filename
     link.href = exportDataUrl
     link.click()
-  }, [exportDataUrl, playedCount])
+  }, [exportDataUrl, playedCount, isMobile])
 
   const handleShareToX = useCallback(() => {
     const text = `I've played ${playedCount}/100 of the Metacritic Top 100 games!\n\nMy rank: ${currentTier.label} 🎮\n\nFind out how many you have played at:\nhttps://top-100-games.vercel.app/`
@@ -291,7 +339,7 @@ export default function Home() {
   const EXPORT_SIZE   = 1200
   const EXPORT_PAD    = 40
   const EXPORT_GAP    = 8
-  const HEADER_H      = 175   // title (~56px) + badge row (~90px) + spacing
+  const HEADER_H      = 270   // title (~56px) + badge row (~90px) + year chart (~95px) + spacing
   const FOOTER_H      = 50    // watermark + margin
   const gridAreaW     = EXPORT_SIZE - EXPORT_PAD * 2              // 1120
   const gridAreaH     = EXPORT_SIZE - EXPORT_PAD * 2 - HEADER_H - FOOTER_H // 855
@@ -819,7 +867,10 @@ export default function Home() {
               backdropFilter: "blur(12px)",
               boxShadow: "0 12px 48px rgba(0,0,0,0.9)",
               minWidth: "210px",
-              overflow: "hidden",
+              // Clamp height so it never exceeds the viewport and becomes scrollable
+              maxHeight: `calc(100vh - ${platformDropdownPos.top}px - 16px)`,
+              overflowY: "auto",
+              overflowX: "hidden",
             }}
           >
             {/* ALL option */}
@@ -1030,6 +1081,69 @@ export default function Home() {
             {currentTier.label}
           </div>
         </div>
+
+        {/* Year chart strip */}
+        {(() => {
+          const { allYears, totalByYear, playedByYear, maxCount } = exportYearChart
+          const BAR_H   = 44
+          const GAP     = 2
+          const barW    = Math.floor((gridAreaW - (allYears.length - 1) * GAP) / allYears.length)
+          return (
+            <div style={{ flexShrink: 0, marginBottom: 18 }}>
+              {/* Label */}
+              <div style={{
+                fontFamily: "var(--font-vt323), monospace",
+                fontSize: 15,
+                color: "#3a3a60",
+                letterSpacing: "0.18em",
+                textAlign: "center",
+                marginBottom: 8,
+              }}>
+                PLAYED BY YEAR
+              </div>
+
+              {/* Bars */}
+              <div style={{ display: "flex", alignItems: "flex-end", height: BAR_H, gap: GAP }}>
+                {allYears.map((year) => {
+                  const total  = totalByYear.get(year)  ?? 0
+                  const played = playedByYear.get(year) ?? 0
+                  const totalH  = total  > 0 ? Math.max(3, Math.round((total  / maxCount) * BAR_H)) : 2
+                  const playedH = played > 0 ? Math.max(3, Math.round((played / maxCount) * BAR_H)) : 0
+                  return (
+                    <div key={year} style={{
+                      width: barW, height: totalH, flexShrink: 0,
+                      background: "#1c1c40", position: "relative",
+                    }}>
+                      {played > 0 && (
+                        <div style={{
+                          position: "absolute", bottom: 0, left: 0, right: 0,
+                          height: playedH,
+                          background: "#00e096",
+                        }} />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Year labels every 5 years */}
+              <div style={{ display: "flex", gap: GAP, marginTop: 5 }}>
+                {allYears.map((year) => (
+                  <div key={year} style={{ width: barW, flexShrink: 0, textAlign: "center" }}>
+                    {year % 5 === 0 && (
+                      <span style={{
+                        fontFamily: "var(--font-vt323), monospace",
+                        fontSize: 13, color: "#3a3a60", letterSpacing: "0.02em",
+                      }}>
+                        {year}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Game covers — row-by-row so incomplete last row stays centred */}
         {playedGames.length > 0 && (
