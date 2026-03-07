@@ -84,6 +84,25 @@ function getScoreColor(score: number): { bg: string; text: string } {
   return { bg: "#4a9eff", text: "#000" }
 }
 
+// Rank 1 = bright gold, Rank 100 = plain gray, linear interpolation
+function getRankColor(rank: number): { color: string; shadowColor: string; glowColor: string } {
+  const t = (rank - 1) / 99            // 0 at rank 1, 1 at rank 100
+  // Gold rgb(255,200,0) → Gray rgb(105,105,105)
+  const r = Math.round(255 - t * 150)
+  const g = Math.round(200 - t * 95)
+  const b = Math.round(0   + t * 105)
+  const color = `rgb(${r},${g},${b})`
+  // Shadow = 45% brightness of main color (hard pixel shadow → tetris effect)
+  const rs = Math.round(r * 0.42)
+  const gs = Math.round(g * 0.42)
+  const bs = Math.round(b * 0.42)
+  const shadowColor = `rgb(${rs},${gs},${bs})`
+  // Glow only for top ~20 ranks, fades quickly
+  const glowAlpha = Math.max(0, 1 - t * 5) * 0.55
+  const glowColor = `rgba(${r},${g},${b},${glowAlpha.toFixed(2)})`
+  return { color, shadowColor, glowColor }
+}
+
 export default function GameCard({ game, played, onClick }: Props) {
   // steamError: the static coverUrl (Steam library_600x900) failed to load
   const [steamError, setSteamError] = useState(false)
@@ -241,25 +260,7 @@ export default function GameCard({ game, played, onClick }: Props) {
           )}
         </div>
 
-        {/* Rank badge — top-left of front face */}
-        <div
-          style={{
-            position: "absolute",
-            left: 5,
-            top: DY + 5,
-            background: "rgba(7,7,26,0.88)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "#5050a0",
-            fontSize: "14px",
-            fontFamily: "var(--font-vt323), monospace",
-            padding: "0 5px",
-            lineHeight: "1.4",
-            letterSpacing: "0.04em",
-            zIndex: 2,
-          }}
-        >
-          #{game.rank}
-        </div>
+        {/* rank badge removed — now displayed as large number below the case */}
 
         {/* Played check — top-right of front face */}
         {played && (
@@ -291,6 +292,30 @@ export default function GameCard({ game, played, onClick }: Props) {
           letterSpacing: "0.04em",
         }}
       >
+        {/* ── Big rank number (tetris-block style) ── */}
+        {(() => {
+          const { color, shadowColor, glowColor } = getRankColor(game.rank)
+          return (
+            <div style={{
+              fontSize: "52px",
+              lineHeight: 1,
+              marginBottom: "6px",
+              color,
+              fontFamily: "var(--font-vt323), monospace",
+              letterSpacing: "-0.01em",
+              // Hard pixel shadows stacked = tetris cube / chunky block look
+              textShadow: `
+                2px  2px 0 ${shadowColor},
+                4px  4px 0 ${shadowColor},
+                6px  6px 0 ${shadowColor},
+                0    0   18px ${glowColor}
+              `,
+            }}>
+              #{game.rank}
+            </div>
+          )
+        })()}
+
         {/* Title */}
         <div
           style={{
