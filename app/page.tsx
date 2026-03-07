@@ -9,6 +9,50 @@ import StatsPanel from "@/components/StatsPanel"
 import ConsoleIcon from "@/components/ConsoleIcon"
 import Confetti from "@/components/Confetti"
 import { ALL_GAMES } from "@/lib/games"
+import type { Game } from "@/types/game"
+
+// ── Module-level cover cache ───────────────────────────────────────────────────
+// Persists across re-renders so covers pre-fetched in the background are
+// instantly available when the user clicks Share.
+const coverCache = new Map<string, string>() // gameId → data URL
+
+async function proxyToDataUrl(rawUrl: string): Promise<string | null> {
+  const src = rawUrl.startsWith("/")
+    ? rawUrl
+    : `/api/proxy-image?url=${encodeURIComponent(rawUrl)}`
+  try {
+    const res = await fetch(src)
+    if (!res.ok) return null
+    const blob = await res.blob()
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+  } catch { return null }
+}
+
+async function fetchAndCacheCover(game: Game): Promise<void> {
+  if (coverCache.has(game.id)) return // already cached — nothing to do
+  // Pass 1: static Steam CDN URL
+  if (game.coverUrl) {
+    const dataUrl = await proxyToDataUrl(game.coverUrl)
+    if (dataUrl) { coverCache.set(game.id, dataUrl); return }
+  }
+  // Pass 2: Wikipedia fallback (same as GameCard)
+  try {
+    const searchTitle = game.wikiTitle ?? game.title
+    const r = await fetch(
+      `/api/cover?title=${encodeURIComponent(searchTitle)}&year=${game.year}`
+    )
+    const data = await r.json()
+    if (data.url) {
+      const dataUrl = await proxyToDataUrl(data.url)
+      if (dataUrl) { coverCache.set(game.id, dataUrl) }
+    }
+  } catch { /* no cover available for this game */ }
+}
 
 const STORAGE_KEY = "metacritic100_played"
 
@@ -197,6 +241,16 @@ export default function Home() {
     }
   }, [playedIds])
 
+  // Background pre-fetch: whenever playedIds changes, kick off cover fetches for
+  // any newly played games that aren't already in the cache. By the time the user
+  // opens the Share dialog, the covers will already be ready as data URLs.
+  useEffect(() => {
+    const uncached = ALL_GAMES.filter(
+      (g) => playedIds.has(g.id) && !coverCache.has(g.id)
+    )
+    uncached.forEach((game) => fetchAndCacheCover(game).catch(() => {}))
+  }, [playedIds])
+
   const filteredAndSorted = useMemo(() => {
     let games = filterPlatform
       ? ALL_GAMES.filter((g) => g.platform === filterPlatform)
@@ -247,63 +301,26 @@ export default function Home() {
       const grid = document.getElementById("export-grid")
       if (!grid) return
 
-      // Step 1: Pre-fetch all played game cover images as data URLs.
-      // Mirrors GameCard's two-step fallback exactly:
-      //   1. Static coverUrl via proxy
-      //   2. Wikipedia /api/cover lookup + proxy
-      // This ensures that games whose Steam CDN URL gets blocked or returns
-      // a non-200 will still get their Wikipedia cover in the export image.
+      // Step 1: Build cover map from the module-level cache.
+      // The background useEffect pre-fetches covers whenever games are marked played,
+      // so most (or all) will already be ready by the time the user clicks Share.
+      // Any that are still missing (e.g. user clicked Share very quickly after marking
+      // a game played) are fetched now and then written into the cache for next time.
       const map: Record<string, string> = {}
+      for (const game of playedGames) {
+        const cached = coverCache.get(game.id)
+        if (cached) map[game.id] = cached
+      }
 
-      // Helper: fetch a URL via proxy and return a data URL, or null on failure
-      async function fetchAsDataUrl(rawUrl: string): Promise<string | null> {
-        const src = rawUrl.startsWith("/")
-          ? rawUrl
-          : `/api/proxy-image?url=${encodeURIComponent(rawUrl)}`
-        try {
-          const res = await fetch(src)
-          if (!res.ok) return null
-          const blob = await res.blob()
-          return await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader()
-            reader.onload = () => resolve(reader.result as string)
-            reader.onerror = reject
-            reader.readAsDataURL(blob)
+      const uncached = playedGames.filter((g) => !map[g.id])
+      if (uncached.length > 0) {
+        await Promise.allSettled(
+          uncached.map(async (game) => {
+            await fetchAndCacheCover(game)
+            const dataUrl = coverCache.get(game.id)
+            if (dataUrl) map[game.id] = dataUrl
           })
-        } catch { return null }
-      }
-
-      // Helper: fetch one game's cover through both passes, writing into map
-      async function fetchGameCover(game: typeof playedGames[number]) {
-        // Pass 1: static coverUrl
-        if (game.coverUrl) {
-          const dataUrl = await fetchAsDataUrl(game.coverUrl)
-          if (dataUrl) { map[game.id] = dataUrl; return }
-        }
-        // Pass 2: Wikipedia API fallback
-        try {
-          const searchTitle = game.wikiTitle ?? game.title
-          const r = await fetch(
-            `/api/cover?title=${encodeURIComponent(searchTitle)}&year=${game.year}`
-          )
-          const data = await r.json()
-          if (data.url) {
-            const dataUrl = await fetchAsDataUrl(data.url)
-            if (dataUrl) { map[game.id] = dataUrl; return }
-          }
-        } catch { /* no cover available */ }
-      }
-
-      // Initial fetch pass
-      await Promise.allSettled(playedGames.map(fetchGameCover))
-
-      // Retry pass: some Steam CDN requests are slow on first hit (cold cache).
-      // Any games still missing from the map get one more attempt after a short
-      // delay — by now the browser cache has usually warmed up from the first pass.
-      const stillMissing = playedGames.filter((g) => !map[g.id])
-      if (stillMissing.length > 0) {
-        await new Promise((r) => setTimeout(r, 800))
-        await Promise.allSettled(stillMissing.map(fetchGameCover))
+        )
       }
 
       // Step 2: Pre-fetch the tier badge as a data URL.
