@@ -327,8 +327,23 @@ export default function Home() {
       grid.style.setProperty("left", "0px", "important")
       grid.style.setProperty("top", "0px", "important")
 
-      // One more tick for the browser to paint all images
-      await new Promise((r) => setTimeout(r, 400))
+      // Wait for every <img> in the export grid to finish loading/decoding.
+      // Data URLs should be fast, but mobile Safari can still be slow to decode them.
+      await Promise.all(
+        Array.from(grid.querySelectorAll("img")).map((img) =>
+          img.complete
+            ? Promise.resolve()
+            : new Promise<void>((res) => {
+                img.onload  = () => res()
+                img.onerror = () => res()
+              })
+        )
+      )
+
+      // html-to-image known quirk on mobile: first toPng call warms its internal
+      // image cache; second call reliably captures everything. Discard first result.
+      await toPng(grid, { backgroundColor: "#07071a", pixelRatio: 1 }).catch(() => {})
+      await new Promise((r) => setTimeout(r, 100))
 
       const dataUrl = await toPng(grid, {
         backgroundColor: "#07071a",
