@@ -396,6 +396,8 @@ export default function Home() {
   const cellWFromH    = Math.floor(cellHFromH * 3 / 4)
   const exportCellW   = Math.min(cellWFromW, cellWFromH)
   const exportCellH   = Math.floor(exportCellW * 4 / 3)
+  // Actual pixel width of the game grid — dot chart matches this so there's no dead space
+  const gameGridW     = exportCols * exportCellW + (exportCols - 1) * EXPORT_GAP
 
   return (
     <div style={{ height: "calc(100vh - 72px)", display: "flex", flexDirection: "column", overflow: "hidden", background: "#07071a" }}>
@@ -1143,10 +1145,13 @@ export default function Home() {
           const CHART_H  = 60          // fixed column height (fits up to 5 dots)
           const MAX_DOTS = Math.floor(CHART_H / (DOT + DOT_GAP))
           const GAP      = 2           // horizontal gap between columns
-          const colW     = Math.floor((gridAreaW - (allYears.length - 1) * GAP) / allYears.length)
+          const colW     = Math.floor((gameGridW - (allYears.length - 1) * GAP) / allYears.length)
 
           return (
-            <div style={{ flexShrink: 0, marginBottom: 18 }}>
+            <div style={{ flexShrink: 0, marginBottom: 18, display: "flex", flexDirection: "column", alignItems: "center" }}>
+              {/* Inner container locked to game-grid width */}
+              <div style={{ width: gameGridW }}>
+
               {/* Section label */}
               <div style={{
                 fontFamily: "var(--font-vt323), monospace",
@@ -1211,6 +1216,8 @@ export default function Home() {
                   )
                 })}
               </div>
+
+              </div>{/* end game-grid-width container */}
             </div>
           )
         })()}
