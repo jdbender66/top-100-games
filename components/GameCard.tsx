@@ -377,12 +377,16 @@ export default function GameCard({ game, played, onClick, isMobile = false }: Pr
       </div>{/* end fixed-height case container */}
 
       {/* ── Info below the case ───────────────────────────────── */}
+      {/* Fixed-height column so every card's score chip lands on the same row */}
       <div
         style={{
-          width: Math.max(CW + DX, 152), // ensure info doesn't get too narrow
+          width: Math.max(CW + DX, 152),
           textAlign: "center",
           fontFamily: "var(--font-vt323), monospace",
           letterSpacing: "0.04em",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         {/* ── Big rank number (tetris-block style) ── */}
@@ -396,7 +400,7 @@ export default function GameCard({ game, played, onClick, isMobile = false }: Pr
               color,
               fontFamily: "var(--font-vt323), monospace",
               letterSpacing: "-0.01em",
-              // Hard pixel shadows stacked = tetris cube / chunky block look
+              flexShrink: 0,
               textShadow: `
                 2px  2px 0 ${shadowColor},
                 4px  4px 0 ${shadowColor},
@@ -409,30 +413,38 @@ export default function GameCard({ game, played, onClick, isMobile = false }: Pr
           )
         })()}
 
-        {/* Title */}
+        {/* Title — fixed height = exactly 2 lines, so all cards stay in sync */}
         <div
           style={{
             fontSize: "19px",
             color: hovered ? "#e8e4ff" : "#c8c4e0",
-            lineHeight: 1.2,
-            marginBottom: "3px",
-            transition: "color 0.15s",
+            lineHeight: 1.25,
+            // 19px × 1.25 × 2 lines = 47.5 → round to 48px
+            height: "48px",
+            overflow: "hidden",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
-            overflow: "hidden",
+            marginBottom: "4px",
+            transition: "color 0.15s",
+            flexShrink: 0,
+            width: "100%",
           } as CSSProperties}
         >
           {game.title}
         </div>
 
         {/* Year · Console icon */}
-        <div style={{ fontSize: "14px", color: "#7070b8", marginBottom: "5px", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+        <div style={{
+          fontSize: "14px", color: "#7070b8", marginBottom: "5px",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: "5px",
+          flexShrink: 0,
+        }}>
           {game.year}&nbsp;·&nbsp;<ConsoleIcon platform={game.platform} size={18} />
         </div>
 
         {/* Score chip */}
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "6px" }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "6px", flexShrink: 0 }}>
           <span
             style={{
               background: sc.bg,

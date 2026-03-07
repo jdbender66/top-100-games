@@ -1218,7 +1218,6 @@ export default function Home() {
                       height: exportCellH,
                       flexShrink: 0,
                       overflow: "hidden",
-                      outline: "2px solid #00e096",
                     }}>
                       {exportImageMap[game.id] ? (
                         // eslint-disable-next-line @next/next/no-img-element
