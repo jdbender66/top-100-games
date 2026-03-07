@@ -245,42 +245,51 @@ export default function Home() {
       if (!grid) return
 
       // Step 1: Pre-fetch all played game cover images as data URLs.
-      // Mirrors GameCard's two-step fallback: static coverUrl first,
-      // then Wikipedia API (same /api/cover endpoint GameCard uses).
-      // Converting to data URLs avoids CORS failures inside html-to-image.
+      // Mirrors GameCard's two-step fallback exactly:
+      //   1. Static coverUrl via proxy
+      //   2. Wikipedia /api/cover lookup + proxy
+      // This ensures that games whose Steam CDN URL gets blocked or returns
+      // a non-200 will still get their Wikipedia cover in the export image.
       const map: Record<string, string> = {}
+
+      // Helper: fetch a URL via proxy and return a data URL, or null on failure
+      async function fetchAsDataUrl(rawUrl: string): Promise<string | null> {
+        const src = rawUrl.startsWith("/")
+          ? rawUrl
+          : `/api/proxy-image?url=${encodeURIComponent(rawUrl)}`
+        try {
+          const res = await fetch(src)
+          if (!res.ok) return null
+          const blob = await res.blob()
+          return await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(reader.result as string)
+            reader.onerror = reject
+            reader.readAsDataURL(blob)
+          })
+        } catch { return null }
+      }
+
       await Promise.allSettled(
         playedGames.map(async (game) => {
-          let coverUrl = game.coverUrl
-
-          // If no static URL, ask the same Wikipedia API GameCard uses
-          if (!coverUrl) {
-            try {
-              const searchTitle = game.wikiTitle ?? game.title
-              const r = await fetch(
-                `/api/cover?title=${encodeURIComponent(searchTitle)}&year=${game.year}`
-              )
-              const data = await r.json()
-              if (data.url) coverUrl = data.url
-            } catch { /* leave coverUrl empty */ }
+          // Pass 1: static coverUrl
+          if (game.coverUrl) {
+            const dataUrl = await fetchAsDataUrl(game.coverUrl)
+            if (dataUrl) { map[game.id] = dataUrl; return }
           }
 
-          if (!coverUrl) return
-
-          const src = coverUrl.startsWith("/")
-            ? coverUrl
-            : `/api/proxy-image?url=${encodeURIComponent(coverUrl)}`
+          // Pass 2: Wikipedia API fallback (same endpoint GameCard uses)
           try {
-            const res = await fetch(src)
-            if (!res.ok) return
-            const blob = await res.blob()
-            map[game.id] = await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader()
-              reader.onload = () => resolve(reader.result as string)
-              reader.onerror = reject
-              reader.readAsDataURL(blob)
-            })
-          } catch { /* skip — image will be blank placeholder */ }
+            const searchTitle = game.wikiTitle ?? game.title
+            const r = await fetch(
+              `/api/cover?title=${encodeURIComponent(searchTitle)}&year=${game.year}`
+            )
+            const data = await r.json()
+            if (data.url) {
+              const dataUrl = await fetchAsDataUrl(data.url)
+              if (dataUrl) { map[game.id] = dataUrl; return }
+            }
+          } catch { /* no cover available — will show dark placeholder */ }
         })
       )
 
