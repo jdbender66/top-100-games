@@ -11,8 +11,32 @@ const vt323 = VT323({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://metacritic-100.vercel.app"
+  ),
   title: "Top 100 Games Tracker",
   description: "Track how many of the top 100 games of all time you've played.",
+  openGraph: {
+    title: "Top 100 Games Tracker",
+    description: "Track how many of the top 100 games of all time you've played.",
+    url: "/",
+    siteName: "Top 100 Games Tracker",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Top 100 Games Tracker",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Top 100 Games Tracker",
+    description: "Track how many of the top 100 games of all time you've played.",
+    images: ["/og-image.png"],
+  },
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",

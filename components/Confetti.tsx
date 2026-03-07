@@ -105,55 +105,21 @@ function drawStar(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: numb
 }
 
 export default function Confetti({ intensity, trigger }: ConfettiProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const rafRef    = useRef<number>(0)
-  const particles = useRef<Particle[]>([])
+  const canvasRef  = useRef<HTMLCanvasElement>(null)
+  const rafRef     = useRef<number>(0)
+  const particles  = useRef<Particle[]>([])
+  const loopActive = useRef(false)
 
-  const fire = useCallback(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const cw = canvas.width  = window.innerWidth
-    const ch = canvas.height = window.innerHeight
-
-    // For the grand finale (intensity 10) fire two waves with a small delay
-    particles.current = makeParticles(intensity, cw, ch)
-    if (intensity >= 9) {
-      setTimeout(() => {
-        const canvas2 = canvasRef.current
-        if (!canvas2) return
-        particles.current = [
-          ...particles.current,
-          ...makeParticles(intensity, canvas2.width, canvas2.height),
-        ]
-      }, 350)
-    }
-    if (intensity === 10) {
-      setTimeout(() => {
-        const canvas3 = canvasRef.current
-        if (!canvas3) return
-        particles.current = [
-          ...particles.current,
-          ...makeParticles(intensity, canvas3.width, canvas3.height),
-        ]
-      }, 700)
-    }
-  }, [intensity])
-
-  // Kick off a new burst whenever `trigger` changes (and is non-zero)
-  useEffect(() => {
-    if (!trigger) return
-    fire()
-  }, [trigger, fire])
-
-  // Animation loop
-  useEffect(() => {
+  // Extracted so both fire() and the trigger effect can call it
+  const startLoop = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
     if (!ctx) return
+    if (loopActive.current) return  // already running — particles will be picked up naturally
 
-    const GRAVITY   = 0.18
-    const DRAG      = 0.992
+    const GRAVITY = 0.18
+    const DRAG    = 0.992
 
     function animate() {
       if (!canvas || !ctx) return
@@ -164,14 +130,13 @@ export default function Confetti({ intensity, trigger }: ConfettiProps) {
         if (p.alpha <= 0) continue
         alive = true
 
-        // Physics
-        p.vy  += GRAVITY
-        p.vx  *= DRAG
-        p.vy  *= DRAG
-        p.x   += p.vx
-        p.y   += p.vy
+        p.vy += GRAVITY
+        p.vx *= DRAG
+        p.vy *= DRAG
+        p.x  += p.vx
+        p.y  += p.vy
         p.rotation += p.rotSpeed
-        p.alpha -= p.decay
+        p.alpha    -= p.decay
 
         ctx.save()
         ctx.globalAlpha = Math.max(0, p.alpha)
@@ -195,12 +160,57 @@ export default function Confetti({ intensity, trigger }: ConfettiProps) {
         rafRef.current = requestAnimationFrame(animate)
       } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
+        loopActive.current = false
       }
     }
 
+    loopActive.current = true
     cancelAnimationFrame(rafRef.current)
     rafRef.current = requestAnimationFrame(animate)
+  }, [])
 
+  const fire = useCallback(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const cw = canvas.width  = window.innerWidth
+    const ch = canvas.height = window.innerHeight
+
+    particles.current = makeParticles(intensity, cw, ch)
+
+    // Extra waves for high-intensity milestones
+    if (intensity >= 9) {
+      setTimeout(() => {
+        const canvas2 = canvasRef.current
+        if (!canvas2) return
+        particles.current = [
+          ...particles.current,
+          ...makeParticles(intensity, canvas2.width, canvas2.height),
+        ]
+      }, 350)
+    }
+    if (intensity === 10) {
+      setTimeout(() => {
+        const canvas3 = canvasRef.current
+        if (!canvas3) return
+        particles.current = [
+          ...particles.current,
+          ...makeParticles(intensity, canvas3.width, canvas3.height),
+        ]
+      }, 700)
+    }
+
+    // Always (re)start the draw loop — it may have exited since last burst
+    startLoop()
+  }, [intensity, startLoop])
+
+  // Fire + restart loop whenever trigger increments
+  useEffect(() => {
+    if (!trigger) return
+    fire()
+  }, [trigger, fire])
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => cancelAnimationFrame(rafRef.current)
   }, [])
 
