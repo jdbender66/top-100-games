@@ -273,28 +273,38 @@ export default function Home() {
         } catch { return null }
       }
 
-      await Promise.allSettled(
-        playedGames.map(async (game) => {
-          // Pass 1: static coverUrl
-          if (game.coverUrl) {
-            const dataUrl = await fetchAsDataUrl(game.coverUrl)
+      // Helper: fetch one game's cover through both passes, writing into map
+      async function fetchGameCover(game: typeof playedGames[number]) {
+        // Pass 1: static coverUrl
+        if (game.coverUrl) {
+          const dataUrl = await fetchAsDataUrl(game.coverUrl)
+          if (dataUrl) { map[game.id] = dataUrl; return }
+        }
+        // Pass 2: Wikipedia API fallback
+        try {
+          const searchTitle = game.wikiTitle ?? game.title
+          const r = await fetch(
+            `/api/cover?title=${encodeURIComponent(searchTitle)}&year=${game.year}`
+          )
+          const data = await r.json()
+          if (data.url) {
+            const dataUrl = await fetchAsDataUrl(data.url)
             if (dataUrl) { map[game.id] = dataUrl; return }
           }
+        } catch { /* no cover available */ }
+      }
 
-          // Pass 2: Wikipedia API fallback (same endpoint GameCard uses)
-          try {
-            const searchTitle = game.wikiTitle ?? game.title
-            const r = await fetch(
-              `/api/cover?title=${encodeURIComponent(searchTitle)}&year=${game.year}`
-            )
-            const data = await r.json()
-            if (data.url) {
-              const dataUrl = await fetchAsDataUrl(data.url)
-              if (dataUrl) { map[game.id] = dataUrl; return }
-            }
-          } catch { /* no cover available — will show dark placeholder */ }
-        })
-      )
+      // Initial fetch pass
+      await Promise.allSettled(playedGames.map(fetchGameCover))
+
+      // Retry pass: some Steam CDN requests are slow on first hit (cold cache).
+      // Any games still missing from the map get one more attempt after a short
+      // delay — by now the browser cache has usually warmed up from the first pass.
+      const stillMissing = playedGames.filter((g) => !map[g.id])
+      if (stillMissing.length > 0) {
+        await new Promise((r) => setTimeout(r, 800))
+        await Promise.allSettled(stillMissing.map(fetchGameCover))
+      }
 
       // Step 2: Pre-fetch the tier badge as a data URL.
       // html-to-image on mobile Safari won't wait for <img src="/..."> to load,
