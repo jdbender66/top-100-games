@@ -110,7 +110,7 @@ export default function Home() {
   // Platform filter
   const [filterPlatform, setFilterPlatform] = useState<string | null>(null)
   const [platformDropdownOpen, setPlatformDropdownOpen] = useState(false)
-  const [platformDropdownPos, setPlatformDropdownPos] = useState<{ top: number; right: number } | null>(null)
+  const [platformDropdownPos, setPlatformDropdownPos] = useState<{ top: number; left: number } | null>(null)
   const platformBtnRef = useRef<HTMLButtonElement>(null)
 
   const platformsWithCount = useMemo(() => {
@@ -124,7 +124,9 @@ export default function Home() {
   const openPlatformDropdown = useCallback(() => {
     if (platformBtnRef.current) {
       const rect = platformBtnRef.current.getBoundingClientRect()
-      setPlatformDropdownPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+      // Align left edge to button left, but clamp so dropdown never overflows right edge
+      const left = Math.max(8, Math.min(rect.left, window.innerWidth - 226))
+      setPlatformDropdownPos({ top: rect.bottom + 4, left })
     }
     setPlatformDropdownOpen(true)
   }, [])
@@ -141,7 +143,8 @@ export default function Home() {
         setPlatformDropdownOpen(false)
       } else {
         // Reposition to stay flush below the button
-        setPlatformDropdownPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+        const left = Math.max(8, Math.min(rect.left, window.innerWidth - 226))
+        setPlatformDropdownPos({ top: rect.bottom + 4, left })
       }
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
@@ -314,8 +317,8 @@ export default function Home() {
       // Step 3: Push data URLs into React state so the export grid renders them
       setExportImageMap(map)
 
-      // Step 4: Give React two frames to commit all new img srcs before we capture
-      await new Promise((r) => setTimeout(r, 200))
+      // Step 4: Give React time to commit all new img srcs before we capture
+      await new Promise((r) => setTimeout(r, 400))
 
       // Step 5: Make export grid visible (loading overlay already covers any flash)
       grid.style.setProperty("visibility", "visible", "important")
@@ -325,7 +328,7 @@ export default function Home() {
       grid.style.setProperty("top", "0px", "important")
 
       // One more tick for the browser to paint all images
-      await new Promise((r) => setTimeout(r, 200))
+      await new Promise((r) => setTimeout(r, 400))
 
       const dataUrl = await toPng(grid, {
         backgroundColor: "#07071a",
@@ -737,8 +740,8 @@ export default function Home() {
       <Sheet open={statsOpen} onOpenChange={setStatsOpen}>
         <SheetContent
           side="right"
-          className="w-[460px] p-6 overflow-y-auto"
-          style={{ background: "#09091e", borderLeft: "2px solid #1a1a44" }}
+          className="p-4 overflow-y-auto"
+          style={{ width: isMobile ? "100vw" : "460px", background: "#09091e", borderLeft: "2px solid #1a1a44" }}
         >
           <SheetHeader className="mb-4">
             <SheetTitle
@@ -930,13 +933,14 @@ export default function Home() {
             style={{
               position: "fixed",
               top: platformDropdownPos.top,
-              right: platformDropdownPos.right,
+              left: platformDropdownPos.left,
               zIndex: 8999,
               background: "rgba(7,7,26,0.97)",
               border: "1px solid #1e1e4a",
               backdropFilter: "blur(12px)",
               boxShadow: "0 12px 48px rgba(0,0,0,0.9)",
               minWidth: "210px",
+              maxWidth: "calc(100vw - 16px)",
               // Clamp height so it never exceeds the viewport and becomes scrollable
               maxHeight: `calc(100vh - ${platformDropdownPos.top}px - 16px)`,
               overflowY: "auto",
