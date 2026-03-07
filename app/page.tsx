@@ -555,7 +555,7 @@ export default function Home() {
           </div>
 
           {/* Sort + Filter bar — right-aligned on desktop, left-aligned on mobile */}
-          <div style={{ display: "flex", justifyContent: isMobile ? "flex-start" : "flex-end", alignItems: "center", gap: "6px", marginTop: "14px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", justifyContent: isMobile ? "flex-start" : "flex-end", alignItems: "stretch", gap: "6px", marginTop: "14px", flexWrap: "wrap" }}>
 
             {/* Platform filter button */}
             <button
