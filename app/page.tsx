@@ -392,116 +392,114 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Buttons */}
-            <div style={{ display: "flex", gap: "8px", alignItems: "center", paddingTop: "8px", flexWrap: "wrap" }}>
-              <button
-                onClick={() => setStatsOpen(true)}
-                style={{
-                  background: "rgba(13,13,42,0.85)",
-                  border: "1px solid #1e1e4a",
-                  color: "#6060a0",
-                  fontFamily: "var(--font-vt323), monospace",
-                  fontSize: "16px",
-                  padding: "5px 14px",
-                  cursor: "pointer",
-                  letterSpacing: "0.06em",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  backdropFilter: "blur(4px)",
-                }}
-              >
-                <BarChart2 style={{ width: 14, height: 14 }} />
-                STATS
-              </button>
-              <button
-                onClick={handleExport}
-                disabled={isExporting}
-                style={{
-                  background: "rgba(13,13,42,0.85)",
-                  border: "1px solid #1e1e4a",
-                  color: "#6060a0",
-                  fontFamily: "var(--font-vt323), monospace",
-                  fontSize: "16px",
-                  padding: "5px 14px",
-                  cursor: isExporting ? "default" : "pointer",
-                  letterSpacing: "0.06em",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  opacity: isExporting ? 0.5 : 1,
-                  backdropFilter: "blur(4px)",
-                }}
-              >
-                <Download style={{ width: 14, height: 14 }} />
-                {isExporting ? "GENERATING..." : "SHARE"}
-              </button>
-              <button
-                onClick={() => {
-                  setPlayedIds(new Set())
-                  localStorage.setItem(STORAGE_KEY, JSON.stringify([]))
-                }}
-                style={{
-                  background: "rgba(180,30,30,0.25)",
-                  border: "1px solid #aa3333",
-                  color: "#ff6b6b",
-                  fontFamily: "var(--font-vt323), monospace",
-                  fontSize: "16px",
-                  padding: "5px 14px",
-                  cursor: "pointer",
-                  letterSpacing: "0.06em",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  backdropFilter: "blur(4px)",
-                }}
-              >
-                CLEAR SELECTIONS
-              </button>
-            </div>
-          </div>
-
-          {/* Sort bar */}
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            marginTop: "12px",
-          }}>
-            <span style={{
-              fontFamily: "var(--font-vt323), monospace",
-              fontSize: "11px",
-              color: "#3a3a65",
-              letterSpacing: "0.14em",
-              marginRight: "6px",
-            }}>
-              SORT
-            </span>
-            {(["rank", "year", "completed"] as const).map((field) => {
-              const active = sortField === field
-              const labels: Record<typeof field, string> = { rank: "RANK", year: "YEAR", completed: "COMPLETED" }
-              const arrow = active ? (sortDir === "asc" ? " ↑" : " ↓") : ""
-              return (
+            {/* Buttons + sort bar — stacked column, right-aligned */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px", paddingTop: "8px" }}>
+              {/* Action buttons row */}
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "flex-end" }}>
                 <button
-                  key={field}
-                  onClick={() => handleSort(field)}
+                  onClick={() => setStatsOpen(true)}
                   style={{
+                    background: "rgba(13,13,42,0.85)",
+                    border: "1px solid #1e1e4a",
+                    color: "#6060a0",
                     fontFamily: "var(--font-vt323), monospace",
-                    fontSize: "13px",
-                    letterSpacing: "0.1em",
-                    padding: "3px 12px",
+                    fontSize: "16px",
+                    padding: "5px 14px",
                     cursor: "pointer",
-                    border: active ? "1px solid rgba(0,224,150,0.5)" : "1px solid rgba(255,255,255,0.08)",
-                    background: active ? "rgba(0,224,150,0.08)" : "rgba(13,13,42,0.6)",
-                    color: active ? "#00e096" : "#5050a0",
+                    letterSpacing: "0.06em",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
                     backdropFilter: "blur(4px)",
-                    transition: "color 0.12s, border-color 0.12s, background 0.12s",
                   }}
                 >
-                  {labels[field]}{arrow}
+                  <BarChart2 style={{ width: 14, height: 14 }} />
+                  STATS
                 </button>
-              )
-            })}
+                <button
+                  onClick={handleExport}
+                  disabled={isExporting}
+                  style={{
+                    background: "rgba(13,13,42,0.85)",
+                    border: "1px solid #1e1e4a",
+                    color: "#6060a0",
+                    fontFamily: "var(--font-vt323), monospace",
+                    fontSize: "16px",
+                    padding: "5px 14px",
+                    cursor: isExporting ? "default" : "pointer",
+                    letterSpacing: "0.06em",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    opacity: isExporting ? 0.5 : 1,
+                    backdropFilter: "blur(4px)",
+                  }}
+                >
+                  <Download style={{ width: 14, height: 14 }} />
+                  {isExporting ? "GENERATING..." : "SHARE"}
+                </button>
+                <button
+                  onClick={() => {
+                    setPlayedIds(new Set())
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify([]))
+                  }}
+                  style={{
+                    background: "rgba(180,30,30,0.25)",
+                    border: "1px solid #aa3333",
+                    color: "#ff6b6b",
+                    fontFamily: "var(--font-vt323), monospace",
+                    fontSize: "16px",
+                    padding: "5px 14px",
+                    cursor: "pointer",
+                    letterSpacing: "0.06em",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    backdropFilter: "blur(4px)",
+                  }}
+                >
+                  CLEAR SELECTIONS
+                </button>
+              </div>
+
+              {/* Sort bar — right-aligned beneath action buttons */}
+              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <span style={{
+                  fontFamily: "var(--font-vt323), monospace",
+                  fontSize: "11px",
+                  color: "#3a3a65",
+                  letterSpacing: "0.14em",
+                  marginRight: "6px",
+                }}>
+                  SORT
+                </span>
+                {(["rank", "year", "completed"] as const).map((field) => {
+                  const active = sortField === field
+                  const labels: Record<typeof field, string> = { rank: "RANK", year: "YEAR", completed: "COMPLETED" }
+                  const arrow = active ? (sortDir === "asc" ? " ↑" : " ↓") : ""
+                  return (
+                    <button
+                      key={field}
+                      onClick={() => handleSort(field)}
+                      style={{
+                        fontFamily: "var(--font-vt323), monospace",
+                        fontSize: "13px",
+                        letterSpacing: "0.1em",
+                        padding: "3px 12px",
+                        cursor: "pointer",
+                        border: active ? "1px solid rgba(0,224,150,0.5)" : "1px solid rgba(255,255,255,0.08)",
+                        background: active ? "rgba(0,224,150,0.08)" : "rgba(13,13,42,0.6)",
+                        color: active ? "#00e096" : "#5050a0",
+                        backdropFilter: "blur(4px)",
+                        transition: "color 0.12s, border-color 0.12s, background 0.12s",
+                      }}
+                    >
+                      {labels[field]}{arrow}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
           </div>
 
           {/* Progress bar */}
