@@ -356,7 +356,7 @@ export default function Home() {
   const exportCellH   = Math.floor(exportCellW * 4 / 3)
 
   return (
-    <div style={{ minHeight: "100vh", background: "#07071a" }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden", background: "#07071a" }}>
 
       {/* ── Hero / status panel ─────────────────────────────── */}
       <div
@@ -365,6 +365,7 @@ export default function Home() {
           borderBottom: "2px solid #1a1a44",
           fontFamily: "var(--font-vt323), monospace",
           overflow: "hidden",
+          flexShrink: 0,
         }}
       >
         {/* Console art background */}
@@ -546,102 +547,109 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Progress bar */}
-          <div style={{ marginTop: "12px", overflow: "hidden" }}>
-            <BlockProgress pct={pct} blocks={isMobile ? 20 : 40} />
-            <div style={{ fontSize: "13px", color: "#5a5a90", letterSpacing: "0.08em", marginTop: "3px" }}>
-              {pct}% COMPLETE
+          {/* Progress bar + Sort/Filter — unified compact row */}
+          <div style={{ marginTop: "10px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "14px", flexWrap: "wrap" }}>
+
+            {/* Left: progress bar + pct label + instruction */}
+            <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+              <BlockProgress pct={pct} blocks={isMobile ? 20 : 40} />
+              <div style={{ fontSize: "13px", color: "#5a5a90", letterSpacing: "0.08em", marginTop: "3px" }}>
+                {pct}% COMPLETE
+              </div>
+              <div style={{ fontSize: "13px", color: "#3a3a70", fontStyle: "italic", marginTop: "4px", letterSpacing: "0.03em" }}>
+                Click a game&apos;s cover to add it to your played games list.
+              </div>
             </div>
-          </div>
 
-          {/* Sort + Filter bar — right-aligned on desktop, left-aligned on mobile */}
-          <div style={{ display: "flex", justifyContent: isMobile ? "flex-start" : "flex-end", alignItems: "stretch", gap: "6px", marginTop: "14px", flexWrap: "wrap" }}>
+            {/* Right: Sort + Filter controls */}
+            <div style={{ display: "flex", alignItems: "stretch", gap: "6px", flexWrap: "wrap", flexShrink: 0 }}>
 
-            {/* Platform filter button */}
-            <button
-              ref={platformBtnRef}
-              onClick={() => platformDropdownOpen ? setPlatformDropdownOpen(false) : openPlatformDropdown()}
-              style={{
+              {/* Platform filter button */}
+              <button
+                ref={platformBtnRef}
+                onClick={() => platformDropdownOpen ? setPlatformDropdownOpen(false) : openPlatformDropdown()}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: filterPlatform ? "rgba(0,224,150,0.08)" : "rgba(13,13,42,0.85)",
+                  border: filterPlatform ? "1px solid rgba(0,224,150,0.4)" : "1px solid #1e1e4a",
+                  backdropFilter: "blur(4px)",
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-vt323), monospace",
+                  fontSize: "12px",
+                  color: filterPlatform ? "#00e096" : "#6060a0",
+                  letterSpacing: "0.1em",
+                  transition: "border-color 0.12s, color 0.12s, background 0.12s",
+                }}
+              >
+                {filterPlatform ? (
+                  <>
+                    <ConsoleIcon platform={filterPlatform} size={15} />
+                    <span>{filterPlatform.toUpperCase()}</span>
+                    <span style={{ fontSize: "10px", opacity: 0.6, marginLeft: "2px" }}>✕</span>
+                  </>
+                ) : (
+                  <>
+                    <span>PLATFORM</span>
+                    <span style={{ fontSize: "9px", opacity: 0.5 }}>▼</span>
+                  </>
+                )}
+              </button>
+
+              {/* Sort box */}
+              <div style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "6px",
-                background: filterPlatform ? "rgba(0,224,150,0.08)" : "rgba(13,13,42,0.85)",
-                border: filterPlatform ? "1px solid rgba(0,224,150,0.4)" : "1px solid #1e1e4a",
+                gap: "4px",
+                background: "rgba(13,13,42,0.85)",
+                border: "1px solid #1e1e4a",
                 backdropFilter: "blur(4px)",
-                padding: "5px 10px",
-                cursor: "pointer",
-                fontFamily: "var(--font-vt323), monospace",
-                fontSize: "12px",
-                color: filterPlatform ? "#00e096" : "#6060a0",
-                letterSpacing: "0.1em",
-                transition: "border-color 0.12s, color 0.12s, background 0.12s",
-              }}
-            >
-              {filterPlatform ? (
-                <>
-                  <ConsoleIcon platform={filterPlatform} size={15} />
-                  <span>{filterPlatform.toUpperCase()}</span>
-                  <span style={{ fontSize: "10px", opacity: 0.6, marginLeft: "2px" }}>✕</span>
-                </>
-              ) : (
-                <>
-                  <span>PLATFORM</span>
-                  <span style={{ fontSize: "9px", opacity: 0.5 }}>▼</span>
-                </>
-              )}
-            </button>
-
-            {/* Sort box */}
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              background: "rgba(13,13,42,0.85)",
-              border: "1px solid #1e1e4a",
-              backdropFilter: "blur(4px)",
-              padding: "5px 8px",
-            }}>
-              <span style={{
-                fontFamily: "var(--font-vt323), monospace",
-                fontSize: "12px",
-                color: "#6060a0",
-                letterSpacing: "0.14em",
-                marginRight: "6px",
+                padding: "5px 8px",
               }}>
-                SORT
-              </span>
-              {(["rank", "year", "completed"] as const).map((field) => {
-                const active = sortField === field
-                const labels: Record<typeof field, string> = { rank: "RANK", year: "YEAR", completed: "COMPLETED" }
-                const arrow = active ? (sortDir === "asc" ? " ↑" : " ↓") : ""
-                return (
-                  <button
-                    key={field}
-                    onClick={() => handleSort(field)}
-                    style={{
-                      fontFamily: "var(--font-vt323), monospace",
-                      fontSize: "13px",
-                      letterSpacing: "0.1em",
-                      padding: "3px 12px",
-                      cursor: "pointer",
-                      border: active ? "1px solid rgba(0,224,150,0.5)" : "1px solid rgba(255,255,255,0.08)",
-                      background: active ? "rgba(0,224,150,0.08)" : "rgba(7,7,26,0.6)",
-                      color: active ? "#00e096" : "#5050a0",
-                      transition: "color 0.12s, border-color 0.12s, background 0.12s",
-                    }}
-                  >
-                    {labels[field]}{arrow}
-                  </button>
-                )
-              })}
-            </div>
+                <span style={{
+                  fontFamily: "var(--font-vt323), monospace",
+                  fontSize: "12px",
+                  color: "#6060a0",
+                  letterSpacing: "0.14em",
+                  marginRight: "6px",
+                }}>
+                  SORT
+                </span>
+                {(["rank", "year", "completed"] as const).map((field) => {
+                  const active = sortField === field
+                  const labels: Record<typeof field, string> = { rank: "RANK", year: "YEAR", completed: "COMPLETED" }
+                  const arrow = active ? (sortDir === "asc" ? " ↑" : " ↓") : ""
+                  return (
+                    <button
+                      key={field}
+                      onClick={() => handleSort(field)}
+                      style={{
+                        fontFamily: "var(--font-vt323), monospace",
+                        fontSize: "13px",
+                        letterSpacing: "0.1em",
+                        padding: "3px 12px",
+                        cursor: "pointer",
+                        border: active ? "1px solid rgba(0,224,150,0.5)" : "1px solid rgba(255,255,255,0.08)",
+                        background: active ? "rgba(0,224,150,0.08)" : "rgba(7,7,26,0.6)",
+                        color: active ? "#00e096" : "#5050a0",
+                        transition: "color 0.12s, border-color 0.12s, background 0.12s",
+                      }}
+                    >
+                      {labels[field]}{arrow}
+                    </button>
+                  )
+                })}
+              </div>
 
-          </div>{/* end sort+filter bar */}
+            </div>{/* end sort+filter controls */}
+          </div>{/* end progress+sort row */}
         </div>
       </div>
 
       {/* ── Game grid ───────────────────────────────────────── */}
-      <div style={{ padding: isMobile ? "12px 10px 60px" : "28px 24px 60px" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "12px 10px 60px" : "28px 24px 60px" }}>
         <div
           style={{
             display: "grid",
@@ -1082,64 +1090,81 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Year chart strip */}
+        {/* Year dot chart — mirrors the sidebar StatsPanel style */}
         {(() => {
-          const { allYears, totalByYear, playedByYear, maxCount } = exportYearChart
-          const BAR_H   = 44
-          const GAP     = 2
-          const barW    = Math.floor((gridAreaW - (allYears.length - 1) * GAP) / allYears.length)
+          const { allYears, playedByYear } = exportYearChart
+          const DOT      = 10          // dot diameter px
+          const DOT_GAP  = 3           // vertical gap between dots
+          const CHART_H  = 60          // fixed column height (fits up to 5 dots)
+          const MAX_DOTS = Math.floor(CHART_H / (DOT + DOT_GAP))
+          const GAP      = 2           // horizontal gap between columns
+          const colW     = Math.floor((gridAreaW - (allYears.length - 1) * GAP) / allYears.length)
+
           return (
             <div style={{ flexShrink: 0, marginBottom: 18 }}>
-              {/* Label */}
+              {/* Section label */}
               <div style={{
                 fontFamily: "var(--font-vt323), monospace",
-                fontSize: 15,
-                color: "#3a3a60",
-                letterSpacing: "0.18em",
-                textAlign: "center",
-                marginBottom: 8,
+                fontSize: 15, color: "#3a3a60",
+                letterSpacing: "0.18em", textAlign: "center", marginBottom: 8,
               }}>
                 PLAYED BY YEAR
               </div>
 
-              {/* Bars */}
-              <div style={{ display: "flex", alignItems: "flex-end", height: BAR_H, gap: GAP }}>
+              {/* Dot columns */}
+              <div style={{ display: "flex", alignItems: "flex-end", height: CHART_H, gap: GAP }}>
                 {allYears.map((year) => {
-                  const total  = totalByYear.get(year)  ?? 0
-                  const played = playedByYear.get(year) ?? 0
-                  const totalH  = total  > 0 ? Math.max(3, Math.round((total  / maxCount) * BAR_H)) : 2
-                  const playedH = played > 0 ? Math.max(3, Math.round((played / maxCount) * BAR_H)) : 0
+                  const count = Math.min(playedByYear.get(year) ?? 0, MAX_DOTS)
                   return (
                     <div key={year} style={{
-                      width: barW, height: totalH, flexShrink: 0,
-                      background: "#1c1c40", position: "relative",
+                      width: colW, flexShrink: 0,
+                      display: "flex", flexDirection: "column",
+                      alignItems: "center", justifyContent: "flex-end",
+                      height: "100%", gap: DOT_GAP,
                     }}>
-                      {played > 0 && (
-                        <div style={{
-                          position: "absolute", bottom: 0, left: 0, right: 0,
-                          height: playedH,
+                      {Array.from({ length: count }, (_, i) => (
+                        <div key={i} style={{
+                          width: DOT, height: DOT,
+                          borderRadius: "50%",
                           background: "#00e096",
+                          boxShadow: "0 0 5px rgba(0,224,150,0.65)",
+                          flexShrink: 0,
                         }} />
-                      )}
+                      ))}
                     </div>
                   )
                 })}
               </div>
 
-              {/* Year labels every 5 years */}
-              <div style={{ display: "flex", gap: GAP, marginTop: 5 }}>
-                {allYears.map((year) => (
-                  <div key={year} style={{ width: barW, flexShrink: 0, textAlign: "center" }}>
-                    {year % 5 === 0 && (
-                      <span style={{
-                        fontFamily: "var(--font-vt323), monospace",
-                        fontSize: 13, color: "#3a3a60", letterSpacing: "0.02em",
-                      }}>
-                        {year}
-                      </span>
-                    )}
-                  </div>
-                ))}
+              {/* Axis line */}
+              <div style={{ height: 1, background: "#2a2a50", marginTop: 5 }} />
+
+              {/* Tick marks + year labels every 5 years */}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: GAP, marginTop: 3 }}>
+                {allYears.map((year) => {
+                  const show = year % 5 === 0
+                  return (
+                    <div key={year} style={{
+                      width: colW, flexShrink: 0,
+                      display: "flex", flexDirection: "column", alignItems: "center",
+                    }}>
+                      <div style={{
+                        width: 1, height: show ? 7 : 4,
+                        background: show ? "#3a3a70" : "#1e1e40",
+                        marginBottom: 2,
+                      }} />
+                      {show && (
+                        <span style={{
+                          fontFamily: "var(--font-vt323), monospace",
+                          fontSize: 13, color: "#4a4a80",
+                          letterSpacing: 0, whiteSpace: "nowrap",
+                        }}>
+                          {year}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )
