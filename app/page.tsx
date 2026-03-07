@@ -95,6 +95,8 @@ export default function Home() {
   const [exportDataUrl, setExportDataUrl] = useState<string>("")
   // Pre-loaded cover images as data URLs for export (bypasses CORS)
   const [exportImageMap, setExportImageMap] = useState<Record<string, string>>({})
+  // Pre-loaded tier badge as data URL (html-to-image won't wait for <img src> on mobile)
+  const [exportBadgeUrl, setExportBadgeUrl] = useState<string>("")
   // Clipboard copy status for X share UX hint
   const [clipboardCopied, setClipboardCopied] = useState(false)
   const [tierTooltipOpen, setTierTooltipOpen] = useState(false)
@@ -282,33 +284,51 @@ export default function Home() {
         })
       )
 
-      // Step 2: Push data URLs into React state so the export grid renders them
+      // Step 2: Pre-fetch the tier badge as a data URL.
+      // html-to-image on mobile Safari won't wait for <img src="/..."> to load,
+      // so we need to inline it as a data URL just like the game covers.
+      let badgeDataUrl = ""
+      try {
+        const res = await fetch(currentTier.badge)
+        if (res.ok) {
+          const blob = await res.blob()
+          badgeDataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(reader.result as string)
+            reader.onerror = reject
+            reader.readAsDataURL(blob)
+          })
+        }
+      } catch { /* badge will fall back to the path src */ }
+      setExportBadgeUrl(badgeDataUrl)
+
+      // Step 3: Push data URLs into React state so the export grid renders them
       setExportImageMap(map)
 
-      // Step 3: Give React one frame to commit the new img srcs
-      await new Promise((r) => setTimeout(r, 80))
+      // Step 4: Give React two frames to commit all new img srcs before we capture
+      await new Promise((r) => setTimeout(r, 200))
 
-      // Step 4: Make export grid visible (loading overlay already covers any flash)
+      // Step 5: Make export grid visible (loading overlay already covers any flash)
       grid.style.setProperty("visibility", "visible", "important")
       grid.style.setProperty("opacity", "1", "important")
       grid.style.setProperty("z-index", "9999", "important")
       grid.style.setProperty("left", "0px", "important")
       grid.style.setProperty("top", "0px", "important")
 
-      // One more tick for the browser to paint
-      await new Promise((r) => setTimeout(r, 80))
+      // One more tick for the browser to paint all images
+      await new Promise((r) => setTimeout(r, 200))
 
       const dataUrl = await toPng(grid, {
         backgroundColor: "#07071a",
         pixelRatio: 2,
       })
 
-      // Step 5: Hide export grid again
+      // Step 6: Hide export grid again
       grid.style.setProperty("opacity", "0", "important")
       grid.style.setProperty("z-index", "-1", "important")
       grid.style.setProperty("visibility", "hidden", "important")
 
-      // Step 6: Copy image to clipboard now so it's ready before the modal opens
+      // Step 7: Copy image to clipboard now so it's ready before the modal opens
       setClipboardCopied(false)
       try {
         const blob = await fetch(dataUrl).then((r) => r.blob())
@@ -1105,7 +1125,7 @@ export default function Home() {
           flexShrink: 0,
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={currentTier.badge} alt={currentTier.label}
+          <img src={exportBadgeUrl || currentTier.badge} alt={currentTier.label}
             style={{ height: 72, width: "auto", objectFit: "contain" }} />
           <div style={{
             color: "#00e096", fontSize: 28,
