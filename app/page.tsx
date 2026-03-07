@@ -6,6 +6,7 @@ import { BarChart2, Download, X } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import GameCard from "@/components/GameCard"
 import StatsPanel from "@/components/StatsPanel"
+import ConsoleIcon from "@/components/ConsoleIcon"
 import { ALL_GAMES } from "@/lib/games"
 
 const STORAGE_KEY = "metacritic100_played"
@@ -91,6 +92,28 @@ export default function Home() {
   const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number; width: number } | null>(null)
   const tierBtnRef = useRef<HTMLButtonElement>(null)
 
+  // Platform filter
+  const [filterPlatform, setFilterPlatform] = useState<string | null>(null)
+  const [platformDropdownOpen, setPlatformDropdownOpen] = useState(false)
+  const [platformDropdownPos, setPlatformDropdownPos] = useState<{ top: number; right: number } | null>(null)
+  const platformBtnRef = useRef<HTMLButtonElement>(null)
+
+  const platformsWithCount = useMemo(() => {
+    const counts = new Map<string, number>()
+    ALL_GAMES.forEach((g) => counts.set(g.platform, (counts.get(g.platform) ?? 0) + 1))
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([platform, count]) => ({ platform, count }))
+  }, [])
+
+  const openPlatformDropdown = useCallback(() => {
+    if (platformBtnRef.current) {
+      const rect = platformBtnRef.current.getBoundingClientRect()
+      setPlatformDropdownPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    }
+    setPlatformDropdownOpen(true)
+  }, [])
+
   const openTierTooltip = useCallback(() => {
     if (tierBtnRef.current) {
       const rect = tierBtnRef.current.getBoundingClientRect()
@@ -121,7 +144,9 @@ export default function Home() {
   }, [])
 
   const filteredAndSorted = useMemo(() => {
-    const games = [...ALL_GAMES]
+    let games = filterPlatform
+      ? ALL_GAMES.filter((g) => g.platform === filterPlatform)
+      : [...ALL_GAMES]
     if (sortField === "rank") {
       games.sort((a, b) => sortDir === "asc" ? a.rank - b.rank : b.rank - a.rank)
     } else if (sortField === "year") {
@@ -136,7 +161,7 @@ export default function Home() {
       })
     }
     return games
-  }, [sortField, sortDir, playedIds])
+  }, [sortField, sortDir, playedIds, filterPlatform])
 
   // Only games the user has marked as played, in rank order
   const playedGames = useMemo(() =>
@@ -473,8 +498,44 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Sort bar — bottom of hero, right-aligned */}
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "14px" }}>
+          {/* Sort + Filter bar — bottom of hero, right-aligned */}
+          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "6px", marginTop: "14px" }}>
+
+            {/* Platform filter button */}
+            <button
+              ref={platformBtnRef}
+              onClick={() => platformDropdownOpen ? setPlatformDropdownOpen(false) : openPlatformDropdown()}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                background: filterPlatform ? "rgba(0,224,150,0.08)" : "rgba(13,13,42,0.85)",
+                border: filterPlatform ? "1px solid rgba(0,224,150,0.4)" : "1px solid #1e1e4a",
+                backdropFilter: "blur(4px)",
+                padding: "5px 10px",
+                cursor: "pointer",
+                fontFamily: "var(--font-vt323), monospace",
+                fontSize: "12px",
+                color: filterPlatform ? "#00e096" : "#6060a0",
+                letterSpacing: "0.1em",
+                transition: "border-color 0.12s, color 0.12s, background 0.12s",
+              }}
+            >
+              {filterPlatform ? (
+                <>
+                  <ConsoleIcon platform={filterPlatform} size={15} />
+                  <span>{filterPlatform.toUpperCase()}</span>
+                  <span style={{ fontSize: "10px", opacity: 0.6, marginLeft: "2px" }}>✕</span>
+                </>
+              ) : (
+                <>
+                  <span>PLATFORM</span>
+                  <span style={{ fontSize: "9px", opacity: 0.5 }}>▼</span>
+                </>
+              )}
+            </button>
+
+            {/* Sort box */}
             <div style={{
               display: "flex",
               alignItems: "center",
@@ -518,7 +579,8 @@ export default function Home() {
                 )
               })}
             </div>
-          </div>
+
+          </div>{/* end sort+filter bar */}
         </div>
       </div>
 
@@ -725,6 +787,99 @@ export default function Home() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Platform filter dropdown portal ──────────────────── */}
+      {platformDropdownOpen && platformDropdownPos && typeof document !== "undefined" && createPortal(
+        <>
+          {/* Backdrop — click anywhere outside to close */}
+          <div
+            style={{ position: "fixed", inset: 0, zIndex: 8998 }}
+            onClick={() => setPlatformDropdownOpen(false)}
+          />
+          <div
+            style={{
+              position: "fixed",
+              top: platformDropdownPos.top,
+              right: platformDropdownPos.right,
+              zIndex: 8999,
+              background: "rgba(7,7,26,0.97)",
+              border: "1px solid #1e1e4a",
+              backdropFilter: "blur(12px)",
+              boxShadow: "0 12px 48px rgba(0,0,0,0.9)",
+              minWidth: "210px",
+              overflow: "hidden",
+            }}
+          >
+            {/* ALL option */}
+            <div
+              onClick={() => { setFilterPlatform(null); setPlatformDropdownOpen(false) }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "9px 14px",
+                cursor: "pointer",
+                background: filterPlatform === null ? "rgba(0,224,150,0.08)" : "transparent",
+                borderBottom: "1px solid #1a1a3a",
+                fontFamily: "var(--font-vt323), monospace",
+                fontSize: "14px",
+                color: filterPlatform === null ? "#00e096" : "#8080b0",
+                letterSpacing: "0.08em",
+                transition: "background 0.1s",
+              }}
+              onMouseEnter={(e) => { if (filterPlatform !== null) (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)" }}
+              onMouseLeave={(e) => { if (filterPlatform !== null) (e.currentTarget as HTMLDivElement).style.background = "transparent" }}
+            >
+              <span>ALL PLATFORMS</span>
+              <span style={{ fontSize: "12px", color: "#3a3a70" }}>100</span>
+            </div>
+
+            {/* Platform rows */}
+            {platformsWithCount.map(({ platform, count }) => {
+              const active = filterPlatform === platform
+              return (
+                <div
+                  key={platform}
+                  onClick={() => { setFilterPlatform(platform); setPlatformDropdownOpen(false) }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "8px 14px",
+                    cursor: "pointer",
+                    background: active ? "rgba(0,224,150,0.08)" : "transparent",
+                    borderBottom: "1px solid rgba(255,255,255,0.03)",
+                    transition: "background 0.1s",
+                  }}
+                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)" }}
+                  onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLDivElement).style.background = "transparent" }}
+                >
+                  <span style={{ width: 22, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <ConsoleIcon platform={platform} size={16} />
+                  </span>
+                  <span style={{
+                    fontFamily: "var(--font-vt323), monospace",
+                    fontSize: "14px",
+                    color: active ? "#00e096" : "#c8c4e0",
+                    letterSpacing: "0.06em",
+                    flex: 1,
+                  }}>
+                    {platform}
+                  </span>
+                  <span style={{
+                    fontFamily: "var(--font-vt323), monospace",
+                    fontSize: "12px",
+                    color: active ? "rgba(0,224,150,0.5)" : "#3a3a70",
+                  }}>
+                    {count}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </>,
+        document.body
       )}
 
       {/* ── Tier tooltip portal (fixed, above everything) ──── */}

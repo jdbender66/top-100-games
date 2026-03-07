@@ -162,7 +162,14 @@ export default function GameCard({ game, played, onClick }: Props) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* ── Isometric case ────────────────────────────────────── */}
+      {/* ── Isometric case — fixed-height container so all cards align ── */}
+      {/* PORTRAIT_CH + DY = 190 + 11 = 201 is the tallest possible case */}
+      <div style={{
+        height: PORTRAIT_CH + DY,
+        display: "flex",
+        alignItems: "flex-end",
+        justifyContent: "center",
+      }}>
       <div style={caseWrapStyle}>
 
         {/* Top face — lighter, gives the "lid" illusion */}
@@ -263,6 +270,7 @@ export default function GameCard({ game, played, onClick }: Props) {
         {/* rank badge removed — now displayed as large number below the case */}
 
         {/* Played check — top-right of front face */}
+
         {played && (
           <div
             style={{
@@ -282,6 +290,7 @@ export default function GameCard({ game, played, onClick }: Props) {
           </div>
         )}
       </div>
+      </div>{/* end fixed-height case container */}
 
       {/* ── Info below the case ───────────────────────────────── */}
       <div
