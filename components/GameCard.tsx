@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, CSSProperties } from "react"
+import { useState, useEffect, useRef, CSSProperties } from "react"
+import { createPortal } from "react-dom"
 import type { Game } from "@/types/game"
 import ConsoleIcon from "./ConsoleIcon"
 
@@ -113,6 +114,42 @@ export default function GameCard({ game, played, onClick, isMobile = false }: Pr
   const [dynamicImgError, setDynamicImgError] = useState(false)
   const [hovered, setHovered] = useState(false)
 
+  // ── Info popup ────────────────────────────────────────────────────────────
+  const [infoOpen, setInfoOpen] = useState(false)
+  const [wikiSummary, setWikiSummary] = useState<string | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(false)
+  const infoBtnRef = useRef<HTMLButtonElement>(null)
+  const [popupPos, setPopupPos] = useState<{ top: number; left: number } | null>(null)
+
+  function openInfo() {
+    const btn = infoBtnRef.current
+    if (!btn) return
+    const rect = btn.getBoundingClientRect()
+    setPopupPos({ top: rect.top, left: rect.left + rect.width / 2 })
+    setInfoOpen(true)
+    // Lazy-fetch Wikipedia summary on first open
+    if (!wikiSummary && !summaryLoading) {
+      setSummaryLoading(true)
+      const title = encodeURIComponent(game.wikiTitle ?? game.title)
+      fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.extract) {
+            // Trim to ~2 sentences / 220 chars
+            const sentences = data.extract.split(/(?<=[.!?])\s+/)
+            let summary = ""
+            for (const s of sentences) {
+              if ((summary + s).length > 240) break
+              summary += (summary ? " " : "") + s
+            }
+            setWikiSummary(summary || data.extract.slice(0, 240))
+          }
+        })
+        .catch(() => {})
+        .finally(() => setSummaryLoading(false))
+    }
+  }
+
   // Fetch Wikipedia cover when:
   //   • no static Steam URL is set, OR
   //   • the Steam URL failed to load (steamError)
@@ -137,6 +174,97 @@ export default function GameCard({ game, played, onClick, isMobile = false }: Pr
 
   const showFallback = !activeCoverUrl || dynamicImgError
   const sc = getScoreColor(game.metacriticScore)
+
+  // ── Info popup portal ─────────────────────────────────────────────────────
+  const infoPopup = infoOpen && popupPos
+    ? createPortal(
+        <div
+          style={{
+            position: "fixed",
+            top: popupPos.top,
+            left: popupPos.left,
+            transform: "translate(-50%, calc(-100% - 10px))",
+            zIndex: 99998,
+            background: "rgba(10,10,30,0.97)",
+            border: "1px solid #2a2a60",
+            padding: "14px 16px",
+            width: 268,
+            backdropFilter: "blur(12px)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.85)",
+            fontFamily: "var(--font-vt323), monospace",
+            pointerEvents: "none",
+          }}
+        >
+          {/* Title */}
+          <div style={{ fontSize: "19px", color: "#00e096", letterSpacing: "0.04em", lineHeight: 1.2, marginBottom: "10px" }}>
+            {game.title}
+          </div>
+
+          {/* Genre tags */}
+          {game.genres.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginBottom: "10px" }}>
+              {game.genres.map((g) => (
+                <span key={g} style={{
+                  fontSize: "12px",
+                  background: "rgba(0,224,150,0.1)",
+                  border: "1px solid rgba(0,224,150,0.25)",
+                  color: "#00e096",
+                  padding: "0px 7px",
+                  letterSpacing: "0.05em",
+                }}>
+                  {g}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Year · Platform */}
+          <div style={{ fontSize: "15px", color: "#7070b8", marginBottom: "5px", letterSpacing: "0.04em" }}>
+            {game.year}&nbsp;·&nbsp;{game.platform}
+          </div>
+
+          {/* Developer / Publisher */}
+          <div style={{ fontSize: "14px", color: "#5a5a90", marginBottom: "8px", letterSpacing: "0.03em" }}>
+            {game.developer}
+            {game.publisher && game.publisher !== game.developer && (
+              <span style={{ opacity: 0.7 }}> / {game.publisher}</span>
+            )}
+          </div>
+
+          {/* Score */}
+          <div style={{ marginBottom: "10px" }}>
+            <span style={{
+              background: sc.bg,
+              color: sc.text,
+              fontSize: "15px",
+              fontWeight: "bold",
+              padding: "1px 9px",
+              letterSpacing: "0.05em",
+            }}>
+              <span style={{ fontSize: "10px", fontWeight: "normal", opacity: 0.8 }}>Metacritic: </span>
+              {game.metacriticScore}
+            </span>
+          </div>
+
+          {/* Description */}
+          {summaryLoading && (
+            <div style={{ fontSize: "12px", color: "#3a3a70", letterSpacing: "0.05em" }}>Loading...</div>
+          )}
+          {wikiSummary && (
+            <div style={{
+              fontSize: "13px",
+              color: "#8080a8",
+              lineHeight: 1.45,
+              fontFamily: "system-ui, sans-serif",
+              letterSpacing: "0",
+            }}>
+              {wikiSummary}
+            </div>
+          )}
+        </div>,
+        document.body
+      )
+    : null
 
   // ── Mobile compact view (cover art only, rank overlay) ────────────────────
   if (isMobile) {
@@ -240,231 +368,262 @@ export default function GameCard({ game, played, onClick, isMobile = false }: Pr
   }
 
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", cursor: "pointer" }}
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* ── Isometric case — fixed-height container so all cards align ── */}
-      {/* PORTRAIT_CH + DY = 190 + 11 = 201 is the tallest possible case */}
-      <div style={{
-        height: PORTRAIT_CH + DY,
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center",
-      }}>
-      <div style={caseWrapStyle}>
+    <>
+      {infoPopup}
+      <div
+        style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", cursor: "pointer" }}
+        onClick={onClick}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => { setHovered(false); setInfoOpen(false) }}
+      >
+        {/* ── Isometric case — fixed-height container so all cards align ── */}
+        {/* PORTRAIT_CH + DY = 190 + 11 = 201 is the tallest possible case */}
+        <div style={{
+          height: PORTRAIT_CH + DY,
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center",
+        }}>
+        <div style={caseWrapStyle}>
 
-        {/* Top face — lighter, gives the "lid" illusion */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            clipPath: topClip,
-            background: "linear-gradient(120deg, #22224a 0%, #12122e 100%)",
-          }}
-        />
+          {/* Top face — lighter, gives the "lid" illusion */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              clipPath: topClip,
+              background: "linear-gradient(120deg, #22224a 0%, #12122e 100%)",
+            }}
+          />
 
-        {/* Right face — darker, gives depth */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            clipPath: rightClip,
-            background: "linear-gradient(180deg, #0e0e28 0%, #07071a 100%)",
-          }}
-        />
+          {/* Right face — darker, gives depth */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              clipPath: rightClip,
+              background: "linear-gradient(180deg, #0e0e28 0%, #07071a 100%)",
+            }}
+          />
 
-        {/* Front face — the cover art */}
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            top: DY,
-            width: CW,
-            height: CH,
-            overflow: "hidden",
-            outline: played ? "2px solid #00e096" : "1px solid #1e1e4a",
-            outlineOffset: "-1px",
-            // Dark background shows between image and case edges when aspect ratios differ
-            background: "#0a0a1e",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {!showFallback ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={activeCoverUrl!}
-              alt={game.title}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",  // show the WHOLE poster, never crop
-                display: "block",
-              }}
-              onError={() => {
-                // If the static Steam URL fails, trigger the Wikipedia fallback chain
-                if (!steamError && game.coverUrl) setSteamError(true)
-                else setDynamicImgError(true)
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                background: gradientForGame(game.id),
-                display: "flex",
-                alignItems: "flex-end",
-                padding: "8px",
-              }}
-            >
-              <span
+          {/* Front face — the cover art */}
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              top: DY,
+              width: CW,
+              height: CH,
+              overflow: "hidden",
+              outline: played ? "2px solid #00e096" : "1px solid #1e1e4a",
+              outlineOffset: "-1px",
+              // Dark background shows between image and case edges when aspect ratios differ
+              background: "#0a0a1e",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {!showFallback ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={activeCoverUrl!}
+                alt={game.title}
                 style={{
-                  color: "rgba(255,255,255,0.8)",
-                  fontSize: "15px",
-                  fontFamily: "var(--font-vt323), monospace",
-                  lineHeight: 1.25,
-                  letterSpacing: "0.04em",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",  // show the WHOLE poster, never crop
+                  display: "block",
+                }}
+                onError={() => {
+                  // If the static Steam URL fails, trigger the Wikipedia fallback chain
+                  if (!steamError && game.coverUrl) setSteamError(true)
+                  else setDynamicImgError(true)
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  background: gradientForGame(game.id),
+                  display: "flex",
+                  alignItems: "flex-end",
+                  padding: "8px",
                 }}
               >
-                {game.title}
-              </span>
-            </div>
-          )}
+                <span
+                  style={{
+                    color: "rgba(255,255,255,0.8)",
+                    fontSize: "15px",
+                    fontFamily: "var(--font-vt323), monospace",
+                    lineHeight: 1.25,
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  {game.title}
+                </span>
+              </div>
+            )}
 
-          {/* Subtle played tint */}
+            {/* Subtle played tint */}
+            {played && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "rgba(0,224,150,0.1)",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+          </div>
+
+          {/* rank badge removed — now displayed as large number below the case */}
+
+          {/* Played check — top-right of front face */}
           {played && (
             <div
               style={{
                 position: "absolute",
-                inset: 0,
-                background: "rgba(0,224,150,0.1)",
-                pointerEvents: "none",
+                right: DX + 5,
+                top: DY + 5,
+                background: "#00e096",
+                color: "#000",
+                fontFamily: "var(--font-vt323), monospace",
+                fontSize: "15px",
+                padding: "0 5px",
+                lineHeight: "1.4",
+                zIndex: 2,
               }}
-            />
+            >
+              ✓
+            </div>
           )}
         </div>
+        </div>{/* end fixed-height case container */}
 
-        {/* rank badge removed — now displayed as large number below the case */}
-
-        {/* Played check — top-right of front face */}
-
-        {played && (
-          <div
-            style={{
-              position: "absolute",
-              right: DX + 5,
-              top: DY + 5,
-              background: "#00e096",
-              color: "#000",
-              fontFamily: "var(--font-vt323), monospace",
-              fontSize: "15px",
-              padding: "0 5px",
-              lineHeight: "1.4",
-              zIndex: 2,
-            }}
-          >
-            ✓
-          </div>
-        )}
-      </div>
-      </div>{/* end fixed-height case container */}
-
-      {/* ── Info below the case ───────────────────────────────── */}
-      {/* Fixed-height column so every card's score chip lands on the same row */}
-      <div
-        style={{
-          width: Math.max(CW + DX, 152),
-          textAlign: "center",
-          fontFamily: "var(--font-vt323), monospace",
-          letterSpacing: "0.04em",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {/* ── Big rank number (tetris-block style) ── */}
-        {(() => {
-          const { color, shadowColor, glowColor } = getRankColor(game.rank)
-          return (
-            <div style={{
-              fontSize: "52px",
-              lineHeight: 1,
-              marginBottom: "6px",
-              color,
-              fontFamily: "var(--font-vt323), monospace",
-              letterSpacing: "-0.01em",
-              flexShrink: 0,
-              textShadow: `
-                2px  2px 0 ${shadowColor},
-                4px  4px 0 ${shadowColor},
-                6px  6px 0 ${shadowColor},
-                0    0   18px ${glowColor}
-              `,
-            }}>
-              #{game.rank}
-            </div>
-          )
-        })()}
-
-        {/* Title — fixed height = exactly 2 lines, so all cards stay in sync */}
+        {/* ── Info below the case ───────────────────────────────── */}
+        {/* Fixed-height column so every card's score chip lands on the same row */}
         <div
           style={{
-            fontSize: "19px",
-            color: hovered ? "#e8e4ff" : "#c8c4e0",
-            lineHeight: 1.25,
-            // 19px × 1.25 × 2 lines = 47.5 → round to 48px
-            height: "48px",
-            overflow: "hidden",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            marginBottom: "4px",
-            transition: "color 0.15s",
-            flexShrink: 0,
-            width: "100%",
-          } as CSSProperties}
+            width: Math.max(CW + DX, 152),
+            textAlign: "center",
+            fontFamily: "var(--font-vt323), monospace",
+            letterSpacing: "0.04em",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
         >
-          {game.title}
-        </div>
+          {/* ── Big rank number (tetris-block style) ── */}
+          {(() => {
+            const { color, shadowColor, glowColor } = getRankColor(game.rank)
+            return (
+              <div style={{
+                fontSize: "52px",
+                lineHeight: 1,
+                marginBottom: "6px",
+                color,
+                fontFamily: "var(--font-vt323), monospace",
+                letterSpacing: "-0.01em",
+                flexShrink: 0,
+                textShadow: `
+                  2px  2px 0 ${shadowColor},
+                  4px  4px 0 ${shadowColor},
+                  6px  6px 0 ${shadowColor},
+                  0    0   18px ${glowColor}
+                `,
+              }}>
+                #{game.rank}
+              </div>
+            )
+          })()}
 
-        {/* Year · Console icon */}
-        <div style={{
-          fontSize: "14px", color: "#7070b8", marginBottom: "5px",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: "5px",
-          flexShrink: 0,
-        }}>
-          {game.year}&nbsp;·&nbsp;<ConsoleIcon platform={game.platform} size={18} />
-        </div>
-
-        {/* Score chip */}
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "6px", flexShrink: 0 }}>
-          <span
+          {/* Title — fixed height = exactly 2 lines, so all cards stay in sync */}
+          <div
             style={{
-              background: sc.bg,
-              color: sc.text,
-              fontSize: "17px",
-              fontWeight: "bold",
-              padding: "1px 9px",
-              lineHeight: "1.35",
-              letterSpacing: "0.05em",
-            }}
+              fontSize: "19px",
+              color: hovered ? "#e8e4ff" : "#c8c4e0",
+              lineHeight: 1.25,
+              // 19px × 1.25 × 2 lines = 47.5 → round to 48px
+              height: "48px",
+              overflow: "hidden",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              marginBottom: "4px",
+              transition: "color 0.15s",
+              flexShrink: 0,
+              width: "100%",
+            } as CSSProperties}
           >
-            <span style={{ fontSize: "11px", fontWeight: "normal", opacity: 0.8 }}>Metacritic:&nbsp;</span>{game.metacriticScore}
-          </span>
-          {played && (
-            <span style={{ color: "#00e096", fontSize: "15px", letterSpacing: "0.06em" }}>
-              PLAYED
+            {game.title}
+          </div>
+
+          {/* Year · Console icon */}
+          <div style={{
+            fontSize: "14px", color: "#7070b8", marginBottom: "5px",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: "5px",
+            flexShrink: 0,
+          }}>
+            {game.year}&nbsp;·&nbsp;<ConsoleIcon platform={game.platform} size={18} />
+          </div>
+
+          {/* Score chip + info button */}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+            <span
+              style={{
+                background: sc.bg,
+                color: sc.text,
+                fontSize: "17px",
+                fontWeight: "bold",
+                padding: "1px 9px",
+                lineHeight: "1.35",
+                letterSpacing: "0.05em",
+              }}
+            >
+              <span style={{ fontSize: "11px", fontWeight: "normal", opacity: 0.8 }}>Metacritic:&nbsp;</span>{game.metacriticScore}
             </span>
-          )}
+            {played && (
+              <span style={{ color: "#00e096", fontSize: "15px", letterSpacing: "0.06em" }}>
+                PLAYED
+              </span>
+            )}
+
+            {/* ── Info button ── */}
+            <button
+              ref={infoBtnRef}
+              onMouseEnter={(e) => { e.stopPropagation(); openInfo() }}
+              onMouseLeave={(e) => { e.stopPropagation(); setInfoOpen(false) }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                border: "1px solid #3a3a70",
+                background: "rgba(13,13,42,0.85)",
+                color: "#5a5a90",
+                fontFamily: "var(--font-vt323), monospace",
+                fontSize: "12px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                lineHeight: 1,
+                padding: 0,
+                transition: "border-color 0.15s, color 0.15s",
+              }}
+              aria-label="Game info"
+            >
+              i
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
