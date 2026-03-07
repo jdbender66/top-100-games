@@ -745,7 +745,7 @@ export default function Home() {
             letterSpacing: "0.12em",
             marginBottom: "12px",
           }}>
-            ALL TIERS — HOVER TO EXPLORE
+            ALL TIERS
           </div>
           {/* 4-column landscape grid */}
           <div style={{
