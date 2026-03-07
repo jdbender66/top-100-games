@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import GameCard from "@/components/GameCard"
 import StatsPanel from "@/components/StatsPanel"
 import ConsoleIcon from "@/components/ConsoleIcon"
+import Confetti from "@/components/Confetti"
 import { ALL_GAMES } from "@/lib/games"
 
 const STORAGE_KEY = "metacritic100_played"
@@ -97,6 +98,10 @@ export default function Home() {
   // Clipboard copy status for X share UX hint
   const [clipboardCopied, setClipboardCopied] = useState(false)
   const [tierTooltipOpen, setTierTooltipOpen] = useState(false)
+
+  // Confetti: fires at every 10-game milestone, intensity scales 1–10
+  const [confettiTrigger, setConfettiTrigger] = useState(0)
+  const [confettiIntensity, setConfettiIntensity] = useState(1)
   const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number; width: number } | null>(null)
   const tierBtnRef = useRef<HTMLButtonElement>(null)
 
@@ -169,6 +174,23 @@ export default function Home() {
       return next
     })
   }, [])
+
+  // Fire confetti at every 10-game milestone (going up only)
+  const prevPlayedCountRef = useRef(0)
+  useEffect(() => {
+    const count = playedIds.size
+    const prev  = prevPlayedCountRef.current
+    prevPlayedCountRef.current = count
+    // Only trigger when count increases across a multiple of 10
+    if (count <= prev) return
+    const milestone     = Math.floor(count / 10) * 10
+    const prevMilestone = Math.floor(prev  / 10) * 10
+    if (milestone > prevMilestone && milestone > 0) {
+      // intensity 1 (at 10 games) → 10 (at 100 games)
+      setConfettiIntensity(milestone / 10)
+      setConfettiTrigger((t) => t + 1)
+    }
+  }, [playedIds])
 
   const filteredAndSorted = useMemo(() => {
     let games = filterPlatform
@@ -356,7 +378,7 @@ export default function Home() {
   const exportCellH   = Math.floor(exportCellW * 4 / 3)
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden", background: "#07071a" }}>
+    <div style={{ height: "calc(100vh - 72px)", display: "flex", flexDirection: "column", overflow: "hidden", background: "#07071a" }}>
 
       {/* ── Hero / status panel ─────────────────────────────── */}
       <div
@@ -1034,6 +1056,9 @@ export default function Home() {
         </div>,
         document.body
       )}
+
+      {/* ── Confetti canvas (milestone celebrations) ─────────── */}
+      <Confetti intensity={confettiIntensity} trigger={confettiTrigger} />
 
       {/* ── Hidden export grid (1200×1200 square) ───────────── */}
       <div
