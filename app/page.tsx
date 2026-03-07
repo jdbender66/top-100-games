@@ -462,43 +462,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Sort bar — right-aligned beneath action buttons */}
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <span style={{
-                  fontFamily: "var(--font-vt323), monospace",
-                  fontSize: "11px",
-                  color: "#3a3a65",
-                  letterSpacing: "0.14em",
-                  marginRight: "6px",
-                }}>
-                  SORT
-                </span>
-                {(["rank", "year", "completed"] as const).map((field) => {
-                  const active = sortField === field
-                  const labels: Record<typeof field, string> = { rank: "RANK", year: "YEAR", completed: "COMPLETED" }
-                  const arrow = active ? (sortDir === "asc" ? " ↑" : " ↓") : ""
-                  return (
-                    <button
-                      key={field}
-                      onClick={() => handleSort(field)}
-                      style={{
-                        fontFamily: "var(--font-vt323), monospace",
-                        fontSize: "13px",
-                        letterSpacing: "0.1em",
-                        padding: "3px 12px",
-                        cursor: "pointer",
-                        border: active ? "1px solid rgba(0,224,150,0.5)" : "1px solid rgba(255,255,255,0.08)",
-                        background: active ? "rgba(0,224,150,0.08)" : "rgba(13,13,42,0.6)",
-                        color: active ? "#00e096" : "#5050a0",
-                        backdropFilter: "blur(4px)",
-                        transition: "color 0.12s, border-color 0.12s, background 0.12s",
-                      }}
-                    >
-                      {labels[field]}{arrow}
-                    </button>
-                  )
-                })}
-              </div>
             </div>
           </div>
 
@@ -508,6 +471,44 @@ export default function Home() {
             <div style={{ fontSize: "13px", color: "#5a5a90", letterSpacing: "0.08em", marginTop: "3px" }}>
               {pct}% COMPLETE
             </div>
+          </div>
+
+          {/* Sort bar — bottom of hero, right-aligned */}
+          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "4px", marginTop: "14px" }}>
+            <span style={{
+              fontFamily: "var(--font-vt323), monospace",
+              fontSize: "11px",
+              color: "#3a3a65",
+              letterSpacing: "0.14em",
+              marginRight: "6px",
+            }}>
+              SORT
+            </span>
+            {(["rank", "year", "completed"] as const).map((field) => {
+              const active = sortField === field
+              const labels: Record<typeof field, string> = { rank: "RANK", year: "YEAR", completed: "COMPLETED" }
+              const arrow = active ? (sortDir === "asc" ? " ↑" : " ↓") : ""
+              return (
+                <button
+                  key={field}
+                  onClick={() => handleSort(field)}
+                  style={{
+                    fontFamily: "var(--font-vt323), monospace",
+                    fontSize: "13px",
+                    letterSpacing: "0.1em",
+                    padding: "3px 12px",
+                    cursor: "pointer",
+                    border: active ? "1px solid rgba(0,224,150,0.5)" : "1px solid rgba(255,255,255,0.08)",
+                    background: active ? "rgba(0,224,150,0.08)" : "rgba(13,13,42,0.6)",
+                    color: active ? "#00e096" : "#5050a0",
+                    backdropFilter: "blur(4px)",
+                    transition: "color 0.12s, border-color 0.12s, background 0.12s",
+                  }}
+                >
+                  {labels[field]}{arrow}
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
