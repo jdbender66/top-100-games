@@ -4,6 +4,14 @@ import { useEffect, useState } from "react"
 
 export default function Nav() {
   const [timeStr, setTimeStr] = useState("")
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   useEffect(() => {
     const update = () => {
@@ -36,26 +44,42 @@ export default function Nav() {
         alignItems: "center",
         padding: "0 20px",
         fontFamily: "var(--font-vt323), monospace",
-        fontSize: "22px",
         color: "#6060a0",
         letterSpacing: "0.06em",
         userSelect: "none",
+        overflow: "hidden",
       }}
     >
-
       {/* Separator */}
-      <div style={{ width: 1, height: 18, background: "#1e1e5a", marginRight: "14px" }} />
+      <div style={{ width: 1, height: 18, background: "#1e1e5a", marginRight: "14px", flexShrink: 0 }} />
 
-      {/* Logo + Title */}
+      {/* Logo */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/website_logo.png" alt="Top 100" style={{ height: "52px", width: "auto", marginRight: "12px", padding: "3px" }} />
-      <span style={{ color: "#c8c4e0" }}>Top 100 Games Tracker</span>
+      <img
+        src="/website_logo.png"
+        alt="Top 100"
+        style={{ height: "52px", width: "auto", marginRight: "12px", padding: "3px", flexShrink: 0 }}
+      />
+
+      {/* Title — shorter on mobile */}
+      <span style={{
+        color: "#c8c4e0",
+        fontSize: isMobile ? "17px" : "22px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        minWidth: 0,
+      }}>
+        {isMobile ? "Top 100 Tracker" : "Top 100 Games Tracker"}
+      </span>
 
       {/* Spacer */}
       <div style={{ flex: 1 }} />
 
-      {/* Clock */}
-      <span style={{ color: "#3a3a70", fontSize: "15px" }}>{timeStr}</span>
+      {/* Clock — hidden on mobile */}
+      {!isMobile && (
+        <span style={{ color: "#3a3a70", fontSize: "15px", flexShrink: 0 }}>{timeStr}</span>
+      )}
     </header>
   )
 }

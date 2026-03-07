@@ -38,8 +38,8 @@ function proxyImageSrc(url: string): string {
 }
 
 // Progress bar using block characters for retro feel
-function BlockProgress({ pct }: { pct: number }) {
-  const BLOCKS = 40
+function BlockProgress({ pct, blocks = 40 }: { pct: number; blocks?: number }) {
+  const BLOCKS = blocks
   const filled = Math.round((pct / 100) * BLOCKS)
   return (
     <span
@@ -60,6 +60,14 @@ function BlockProgress({ pct }: { pct: number }) {
 }
 
 export default function Home() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
+
   type SortField = "rank" | "year" | "completed"
   type SortDir   = "asc" | "desc"
   // Default directions per field (asc = rank 1 first / oldest first / played first)
@@ -491,15 +499,15 @@ export default function Home() {
           </div>
 
           {/* Progress bar */}
-          <div style={{ marginTop: "12px" }}>
-            <BlockProgress pct={pct} />
+          <div style={{ marginTop: "12px", overflow: "hidden" }}>
+            <BlockProgress pct={pct} blocks={isMobile ? 20 : 40} />
             <div style={{ fontSize: "13px", color: "#5a5a90", letterSpacing: "0.08em", marginTop: "3px" }}>
               {pct}% COMPLETE
             </div>
           </div>
 
-          {/* Sort + Filter bar — bottom of hero, right-aligned */}
-          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "6px", marginTop: "14px" }}>
+          {/* Sort + Filter bar — right-aligned on desktop, left-aligned on mobile */}
+          <div style={{ display: "flex", justifyContent: isMobile ? "flex-start" : "flex-end", alignItems: "center", gap: "6px", marginTop: "14px", flexWrap: "wrap" }}>
 
             {/* Platform filter button */}
             <button
@@ -585,12 +593,14 @@ export default function Home() {
       </div>
 
       {/* ── Game grid ───────────────────────────────────────── */}
-      <div style={{ padding: "28px 24px 60px" }}>
+      <div style={{ padding: isMobile ? "12px 10px 60px" : "28px 24px 60px" }}>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-            gap: "44px 24px",
+            gridTemplateColumns: isMobile
+              ? "repeat(3, 1fr)"
+              : "repeat(auto-fill, minmax(180px, 1fr))",
+            gap: isMobile ? "6px" : "44px 24px",
           }}
         >
           {filteredAndSorted.map((game) => (
@@ -599,6 +609,7 @@ export default function Home() {
               game={game}
               played={playedIds.has(game.id)}
               onClick={() => togglePlayed(game.id)}
+              isMobile={isMobile}
             />
           ))}
         </div>
@@ -910,10 +921,10 @@ export default function Home() {
           }}>
             ALL TIERS
           </div>
-          {/* 4-column landscape grid */}
+          {/* 4-col on desktop, 2-col on mobile */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: tooltipPos && tooltipPos.width < 480 ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
             gap: "8px",
           }}>
             {[...TIERS].reverse().map((tier) => {

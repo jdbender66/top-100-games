@@ -8,6 +8,7 @@ interface Props {
   game: Game
   played: boolean
   onClick: () => void
+  isMobile?: boolean
 }
 
 // ─── Isometric case dimensions ────────────────────────────────────────────────
@@ -103,7 +104,7 @@ function getRankColor(rank: number): { color: string; shadowColor: string; glowC
   return { color, shadowColor, glowColor }
 }
 
-export default function GameCard({ game, played, onClick }: Props) {
+export default function GameCard({ game, played, onClick, isMobile = false }: Props) {
   // steamError: the static coverUrl (Steam library_600x900) failed to load
   const [steamError, setSteamError] = useState(false)
   // dynamicCoverUrl: fetched from Wikipedia API as fallback
@@ -136,6 +137,89 @@ export default function GameCard({ game, played, onClick }: Props) {
 
   const showFallback = !activeCoverUrl || dynamicImgError
   const sc = getScoreColor(game.metacriticScore)
+
+  // ── Mobile compact view (cover art only, rank overlay) ────────────────────
+  if (isMobile) {
+    const { color: rankColor, shadowColor, glowColor } = getRankColor(game.rank)
+    return (
+      <div
+        onClick={onClick}
+        style={{
+          position: "relative",
+          aspectRatio: "3 / 4",
+          overflow: "hidden",
+          cursor: "pointer",
+          border: played ? "2px solid #00e096" : "1px solid #1e1e4a",
+          background: "#0a0a1e",
+        }}
+      >
+        {/* Cover image */}
+        {!showFallback ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={activeCoverUrl!}
+            alt={game.title}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            onError={() => {
+              if (!steamError && game.coverUrl) setSteamError(true)
+              else setDynamicImgError(true)
+            }}
+          />
+        ) : (
+          <div style={{
+            width: "100%", height: "100%",
+            background: gradientForGame(game.id),
+            display: "flex", alignItems: "flex-end", padding: "6px",
+          }}>
+            <span style={{
+              color: "rgba(255,255,255,0.75)", fontSize: "11px",
+              fontFamily: "var(--font-vt323), monospace", lineHeight: 1.2,
+            }}>
+              {game.title}
+            </span>
+          </div>
+        )}
+
+        {/* Played green tint */}
+        {played && (
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "rgba(0,224,150,0.1)", pointerEvents: "none",
+          }} />
+        )}
+
+        {/* Rank overlay — bottom-left, gold→gray */}
+        <div style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: "12px 5px 3px",
+          background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0) 100%)",
+          fontFamily: "var(--font-vt323), monospace",
+          fontSize: "18px",
+          lineHeight: 1,
+          color: rankColor,
+          textShadow: `1px 1px 0 ${shadowColor}, 2px 2px 0 ${shadowColor}, 0 0 10px ${glowColor}`,
+          letterSpacing: "0.02em",
+        }}>
+          #{game.rank}
+        </div>
+
+        {/* Played checkmark — top-right */}
+        {played && (
+          <div style={{
+            position: "absolute", top: 4, right: 4,
+            background: "#00e096", color: "#000",
+            fontFamily: "var(--font-vt323), monospace",
+            fontSize: "13px", padding: "0 4px", lineHeight: "1.4",
+          }}>
+            ✓
+          </div>
+        )}
+      </div>
+    )
+  }
 
   const { CW, CH } = getCaseDimensions(game.platform, game.caseShape)
   const topClip   = `polygon(${DX}px 0px, ${CW + DX}px 0px, ${CW}px ${DY}px, 0px ${DY}px)`
