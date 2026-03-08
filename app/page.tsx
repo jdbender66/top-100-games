@@ -645,11 +645,19 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Progress bar + Sort/Filter — unified compact row */}
-          <div style={{ marginTop: "10px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "14px", flexWrap: "wrap" }}>
+          {/* Progress bar + Sort/Filter */}
+          {/* On mobile: column layout so sort controls never squeeze the progress text */}
+          <div style={{
+            marginTop: "10px",
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "stretch" : "flex-end",
+            justifyContent: "space-between",
+            gap: isMobile ? "8px" : "14px",
+          }}>
 
-            {/* Left: progress bar + pct label + instruction */}
-            <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+            {/* Progress bar + pct label + instruction */}
+            <div style={{ minWidth: 0 }}>
               <BlockProgress pct={pct} blocks={isMobile ? 20 : 40} />
               <div style={{ fontSize: "13px", color: "#5a5a90", letterSpacing: "0.08em", marginTop: "3px" }}>
                 {pct}% COMPLETE
