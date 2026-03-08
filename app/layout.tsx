@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: "Top 100 Games Tracker",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://top-100-games.vercel.app/og-image.png",
         width: 1200,
         height: 630,
         alt: "Top 100 Games Tracker",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Top 100 Games Tracker",
     description: "Track how many of the top 100 games of all time you've played.",
-    images: ["/og-image.png"],
+    images: ["https://top-100-games.vercel.app/og-image.png"],
   },
   icons: {
     icon: "/favicon.png",
